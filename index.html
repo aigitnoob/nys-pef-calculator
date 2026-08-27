@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYS PEF Salary Progression Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 p-6 font-sans">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md border border-slate-200">
+    <h1 class="text-2xl font-bold mb-2 text-slate-900">NYS PEF Salary Calculator</h1>
+    <p class="text-sm text-slate-600 mb-6">Estimate your step increment schedule and 2026–2031 PEF contract salary projections.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Hire Date</label>
+        <input type="date" id="hireDate" class="w-full border rounded p-2 text-sm border-slate-300">
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Starting Base Salary ($)</label>
+        <input type="number" id="baseSalary" placeholder="e.g. 62694" class="w-full border rounded p-2 text-sm border-slate-300">
+      </div>
+    </div>
+
+    <button onclick="calculateSalary()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition">Calculate Projection</button>
+
+    <div id="results" class="mt-6 hidden">
+      <div id="stepInfo" class="p-3 bg-blue-50 text-blue-900 rounded-lg text-sm font-medium mb-4"></div>
+      <table class="w-full text-left text-sm border-collapse">
+        <thead>
+          <tr class="border-b border-slate-300 text-slate-600">
+            <th class="py-2">Date</th>
+            <th class="py-2">Event / Raise</th>
+            <th class="py-2">Projected Base Salary</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function calculateSalary() {
+      const dateVal = document.getElementById('hireDate').value;
+      const baseSalaryVal = parseFloat(document.getElementById('baseSalary').value);
+
+      if (!dateVal || isNaN(baseSalaryVal)) {
+        alert('Please fill out both your Hire Date and Starting Base Salary.');
+        return;
+      }
+
+      const hireDate = new Date(dateVal + 'T00:00:00');
+      const month = hireDate.getMonth() + 1; // 1-12
+      const day = hireDate.getDate();
+
+      // Rule: Hired Oct 2 - Apr 1 -> April Increment | Hired Apr 2 - Oct 1 -> October Increment
+      let incrementMonth = "October";
+      if ((month === 10 && day >= 2) || month > 10 || month < 4 || (month === 4 && day === 1)) {
+        incrementMonth = "April";
+      }
+
+      document.getElementById('stepInfo').innerHTML = `<strong>Step Increment Cycle:</strong> Your annual performance advances will occur every <strong>${incrementMonth}</strong>.`;
+
+      // 2026-2031 PEF Contract Increases
+      const raises = [
+        { year: 2026, label: "4.5% Contract Increase", rate: 0.045 },
+        { year: 2027, label: "4.0% Contract Increase", rate: 0.040 },
+        { year: 2028, label: "3.5% Contract Increase", rate: 0.035 },
+        { year: 2029, label: "3.0% Contract Increase", rate: 0.030 },
+        { year: 2030, label: "3.0% Contract Increase", rate: 0.030 }
+      ];
+
+      let currentSalary = baseSalaryVal;
+      let html = '';
+
+      raises.forEach(r => {
+        currentSalary = currentSalary * (1 + r.rate);
+        html += `<tr class="border-b border-slate-100">
+          <td class="py-2">${r.year} (${incrementMonth})</td>
+          <td class="py-2 text-slate-600">${r.label}</td>
+          <td class="py-2 font-semibold text-slate-900">$${Math.round(currentSalary).toLocaleString()}</td>
+        </tr>`;
+      });
+
+      document.getElementById('tableBody').innerHTML = html;
+      document.getElementById('results').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>
