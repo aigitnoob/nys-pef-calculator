@@ -81,7 +81,6 @@
             margin: 0;
         }
 
-        /* Toggle Switch Styling */
         .theme-switch-wrapper {
             display: flex;
             align-items: center;
@@ -247,7 +246,7 @@
     <header>
         <div class="header-title-container">
             <h1>NYS PEF Salary Calculator</h1>
-            <p class="subtitle">PS&T Unit • Progression & Multi-Year Projection (2023–2031)</p>
+            <p class="subtitle">PS&T Unit • Progression & Multi-Year Projection (2024–2031)</p>
         </div>
         <div class="theme-switch-wrapper">
             <span class="mode-label">☀️</span>
@@ -265,7 +264,7 @@
                 <div class="form-group">
                     <label for="salary-grade">Salary Grade</label>
                     <select id="salary-grade">
-                        <!-- Options populated dynamically for SG 1-37 -->
+                        <!-- Options populated dynamically for SG 1-38 -->
                     </select>
                 </div>
 
@@ -276,7 +275,7 @@
 
                 <div class="form-group">
                     <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
-                    <input type="number" id="custom-salary" placeholder="e.g. 93530">
+                    <input type="number" id="custom-salary" placeholder="Leave blank for standard rate">
                 </div>
 
                 <button type="button" onclick="calculateSalary()">Calculate Full Progression</button>
@@ -296,7 +295,7 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Chronological step and contract entries rendered here -->
+                <!-- Chronological entries rendered here -->
             </tbody>
         </table>
         <p class="note">* Note: Steps advance annually until reaching Job Rate (Step 7). Contract increases update base schedules and advance values proportionally.</p>
@@ -327,50 +326,50 @@
 
     toggleSwitch.addEventListener('change', switchTheme, false);
 
-    // Base 2023 PS&T Schedule Baseline Data (Grades 1-37)
+    // Baseline Data: Effective March 28, 2024 PS&T Schedule
     const pefBaseSchedule = {
-        1:  { hiring: 27330, job: 35286, adv: 1137 },
-        2:  { hiring: 28383, job: 36625, adv: 1177 },
-        3:  { hiring: 29749, job: 38287, adv: 1220 },
-        4:  { hiring: 31012, job: 39934, adv: 1275 },
-        5:  { hiring: 32363, job: 41586, adv: 1318 },
-        6:  { hiring: 33639, job: 43101, adv: 1352 },
-        7:  { hiring: 35384, job: 45229, adv: 1406 },
-        8:  { hiring: 37190, job: 47444, adv: 1465 },
-        9:  { hiring: 39077, job: 49767, adv: 1527 },
-        10: { hiring: 41088, job: 52272, adv: 1598 },
-        11: { hiring: 43232, job: 54881, adv: 1664 },
-        12: { hiring: 44951, job: 57480, adv: 1790 },
-        13: { hiring: 47414, job: 60462, adv: 1864 },
-        14: { hiring: 49925, job: 63544, adv: 1946 },
-        15: { hiring: 52585, job: 66804, adv: 2031 },
-        16: { hiring: 55374, job: 70267, adv: 2128 },
-        17: { hiring: 58247, job: 73942, adv: 2242 },
-        18: { hiring: 61273, job: 77912, adv: 2377 },
-        19: { hiring: 64408, job: 81755, adv: 2478 },
-        20: { hiring: 67490, job: 85584, adv: 2585 },
-        21: { hiring: 71360, job: 90374, adv: 2716 },
-        22: { hiring: 75454, job: 95420, adv: 2852 },
-        23: { hiring: 79836, job: 100808, adv: 2996 },
-        24: { hiring: 84438, job: 106341, adv: 3129 },
-        25: { hiring: 89379, job: 112349, adv: 3281 },
-        26: { hiring: 94367, job: 118408, adv: 3434 },
-        27: { hiring: 98181, job: 123086, adv: 3558 },
-        28: { hiring: 103525, job: 129482, adv: 3708 },
-        29: { hiring: 109075, job: 136152, adv: 3868 },
-        30: { hiring: 114631, job: 142805, adv: 4025 },
-        31: { hiring: 120495, job: 149461, adv: 4138 },
-        32: { hiring: 126749, job: 156637, adv: 4270 },
-        33: { hiring: 133405, job: 164285, adv: 4411 },
-        34: { hiring: 140417, job: 172322, adv: 4558 },
-        35: { hiring: 147596, job: 180590, adv: 4713 },
-        36: { hiring: 154943, job: 189033, adv: 4870 },
-        37: { hiring: 162981, job: 198084, adv: 5015 }
+        1:  { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 },
+        2:  { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
+        3:  { hiring: 29147, job: 37692, adv: 1222, jobAdv: 1213 },
+        4:  { hiring: 30454, job: 39450, adv: 1282, jobAdv: 1304 },
+        5:  { hiring: 31898, job: 41328, adv: 1349, jobAdv: 1336 },
+        6:  { hiring: 33607, job: 43521, adv: 1415, jobAdv: 1424 },
+        7:  { hiring: 35494, job: 45864, adv: 1473, jobAdv: 1532 },
+        8:  { hiring: 37448, job: 48294, adv: 1525, jobAdv: 1696 },
+        9:  { hiring: 39534, job: 50884, adv: 1581, jobAdv: 1864 },
+        10: { hiring: 41776, job: 53708, adv: 1651, jobAdv: 2026 },
+        11: { hiring: 44169, job: 56743, adv: 1758, jobAdv: 2026 },
+        12: { hiring: 46648, job: 59757, adv: 1818, jobAdv: 2201 },
+        13: { hiring: 49363, job: 63169, adv: 1891, jobAdv: 2460 },
+        14: { hiring: 52198, job: 66634, adv: 2020, jobAdv: 2316 },
+        15: { hiring: 55152, job: 70317, adv: 2095, jobAdv: 2595 },
+        16: { hiring: 58247, job: 74135, adv: 2175, jobAdv: 2838 },
+        17: { hiring: 61516, job: 78307, adv: 2278, jobAdv: 3123 },
+        18: { hiring: 65001, job: 82656, adv: 2232, jobAdv: 4263 },
+        19: { hiring: 68523, job: 87032, adv: 2325, jobAdv: 4559 },
+        20: { hiring: 72032, job: 91381, adv: 2422, jobAdv: 4817 },
+        21: { hiring: 75850, job: 96173, adv: 2528, jobAdv: 5155 },
+        22: { hiring: 79928, job: 101197, adv: 2634, jobAdv: 5465 },
+        23: { hiring: 84156, job: 106454, adv: 2743, jobAdv: 5840 },
+        24: { hiring: 88639, job: 111897, adv: 2849, jobAdv: 6164 },
+        25: { hiring: 93530, job: 117875, adv: 2970, jobAdv: 6525 },
+        26: { hiring: 98456, job: 121360, adv: 3091, jobAdv: 4358 },
+        27: { hiring: 103784, job: 127830, adv: 3254, jobAdv: 4522 },
+        28: { hiring: 109250, job: 134178, adv: 3380, jobAdv: 4648 },
+        29: { hiring: 114976, job: 140815, adv: 3510, jobAdv: 4779 },
+        30: { hiring: 120984, job: 147726, adv: 3640, jobAdv: 4902 },
+        31: { hiring: 127433, job: 155130, adv: 3776, jobAdv: 5041 },
+        32: { hiring: 134208, job: 162796, adv: 3903, jobAdv: 5170 },
+        33: { hiring: 141509, job: 170993, adv: 4032, jobAdv: 5292 },
+        34: { hiring: 149047, job: 179511, adv: 4171, jobAdv: 5438 },
+        35: { hiring: 156773, job: 188178, adv: 4306, jobAdv: 5569 },
+        36: { hiring: 164652, job: 197093, adv: 4454, jobAdv: 5717 },
+        37: { hiring: 173294, job: 206703, adv: 4593, jobAdv: 5851 },
+        38: { hiring: 161676, job: 161676, adv: 0,    jobAdv: 0 }
     };
 
-    // Contract General Increase Multipliers starting 2024
+    // Subsequent General Contract Increases (starting after March 28, 2024 baseline)
     const contractIncreases = [
-        { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
         { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
         { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
         { date: "2027-04-01", pct: 0.040, name: "2027 General Increase (4.0%)" },
@@ -385,7 +384,7 @@
     }
 
     const gradeSelect = document.getElementById("salary-grade");
-    for (let g = 1; g <= 37; g++) {
+    for (let g = 1; g <= 38; g++) {
         let opt = document.createElement("option");
         opt.value = g;
         opt.textContent = `Grade ${g}`;
@@ -415,6 +414,7 @@
         let currentAdv = baseData.adv;
         let currentJob = baseData.job;
 
+        // Scale baseline if appointment is after contract increase dates
         contractIncreases.forEach(inc => {
             let incDate = parseLocalDate(inc.date);
             if (incDate < apptDate) {
@@ -429,7 +429,7 @@
 
         events.push({
             date: startDateStr,
-            desc: customSalaryInput ? "Initial Appointment (Increased Hiring Rate)" : "Initial Appointment (Hiring Rate)",
+            desc: customSalaryInput ? "Initial Appointment (Custom Salary Rate)" : "Initial Appointment (Hiring Rate)",
             step: "Step 0",
             salary: Math.round(currentSalary),
             badgeClass: "event-initial"
