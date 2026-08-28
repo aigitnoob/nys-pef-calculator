@@ -250,7 +250,7 @@
         let opt = document.createElement("option");
         opt.value = g;
         opt.textContent = `Grade ${g}`;
-        if (g === 27) opt.selected = true;
+        if (g === 25) opt.selected = true;
         gradeSelect.appendChild(opt);
     }
 
@@ -272,23 +272,24 @@
 
         let events = [];
 
-        // Build active state variables
+        // Reset working schedule values to pure 2023 base rates
         let currentHiring = baseData.hiring;
         let currentAdv = baseData.adv;
         let currentJob = baseData.job;
 
-        // Apply contract raises up to appointment date to set initial starting rate
+        let currentSalary = currentHiring;
+        let currentStep = 0;
+
+        // Apply contract raises that occurred PRIOR to appointment date (strictly before)
         contractIncreases.forEach(inc => {
             let incDate = new Date(inc.date);
-            if (incDate <= apptDate) {
+            if (incDate < apptDate) {
                 currentHiring = Math.round(currentHiring * (1 + inc.pct));
                 currentAdv = Math.round(currentAdv * (1 + inc.pct));
                 currentJob = Math.round(currentJob * (1 + inc.pct));
+                currentSalary = currentHiring;
             }
         });
-
-        let currentStep = 0; // Hiring Rate = Step 0
-        let currentSalary = currentHiring;
 
         events.push({
             date: startDateStr,
@@ -298,12 +299,12 @@
             badgeClass: "event-initial"
         });
 
-        // Generate dynamic timeline from 2024 to 2031
+        // Generate dynamic timeline from appointment date to 2031
         let timelineEvents = [];
 
-        // Add contract raises after appointment date
+        // Add contract raises that occur ON or AFTER appointment date
         contractIncreases.forEach(inc => {
-            if (new Date(inc.date) > apptDate) {
+            if (new Date(inc.date) >= apptDate) {
                 timelineEvents.push({
                     date: inc.date,
                     type: "CONTRACT",
@@ -328,17 +329,23 @@
             }
         }
 
-        // Sort events chronologically
-        timelineEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Sort events chronologically (Contract increases take priority if on the same day)
+        timelineEvents.sort((a, b) => {
+            let diff = new Date(a.date) - new Date(b.date);
+            if (diff === 0) {
+                return a.type === "CONTRACT" ? -1 : 1;
+            }
+            return diff;
+        });
 
-        // Calculate progression
+        // Calculate progression timeline
         timelineEvents.forEach(e => {
             if (e.type === "CONTRACT") {
                 currentHiring = Math.round(currentHiring * (1 + e.pct));
                 currentAdv = Math.round(currentAdv * (1 + e.pct));
                 currentJob = Math.round(currentJob * (1 + e.pct));
                 
-                // General increase applies directly to current salary
+                // Contract increase updates current base salary
                 currentSalary = Math.round(currentSalary * (1 + e.pct));
 
                 events.push({
