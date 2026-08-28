@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYS PEF Salary Calculator & Progression Tool</title>
+    <title>NYS PEF Salary Calculator</title>
     <style>
         :root {
             --primary: #003366;
@@ -56,7 +56,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 1rem;
         }
 
@@ -132,8 +132,8 @@
 
 <div class="container">
     <header>
-        <h1>NYS PEF Salary Progression Calculator</h1>
-        <p class="subtitle">PS&T Unit • 2023–2026 Agreement Schedule Updates</p>
+        <h1>NYS PEF Salary Calculator</h1>
+        <p class="subtitle">PS&T Unit • 2023–2026 Salary Schedule</p>
     </header>
 
     <div class="card">
@@ -142,15 +142,7 @@
                 <div class="form-group">
                     <label for="salary-grade">Salary Grade</label>
                     <select id="salary-grade">
-                        <!-- Grade options populated dynamically -->
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="pay-schedule">Pay Schedule Type</label>
-                    <select id="pay-schedule">
-                        <option value="admin">Administration Cycle</option>
-                        <option value="inst">Institution Cycle</option>
+                        <!-- Options filled via JS for grades 1-37 -->
                     </select>
                 </div>
 
@@ -159,7 +151,7 @@
                     <input type="month" id="start-date" value="2024-03">
                 </div>
 
-                <button type="button" onclick="calculateSalary()">Calculate Corrected Progression</button>
+                <button type="button" onclick="calculateSalary()">Calculate Salary Progression</button>
             </div>
         </form>
     </div>
@@ -169,83 +161,169 @@
         <table id="results-table">
             <thead>
                 <tr>
-                    <th>Effective Period</th>
+                    <th>Contract Period</th>
                     <th>Salary Grade</th>
-                    <th>Hiring Rate (Step 0)</th>
-                    <th>Advancement Step</th>
+                    <th>Hiring Rate</th>
+                    <th>Step Advance</th>
                     <th>Job Rate</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- Projection rows dynamically appended -->
+                <!-- Progression rows rendered here -->
             </tbody>
         </table>
-        <p class="note">* Note: Initial appointments start at the Hiring Rate (Step 0) before performance steps apply.</p>
+        <p class="note">* Note: Initial appointments start at Hiring Rate (Step 0) of the active schedule prior to performance steps.</p>
     </div>
 </div>
 
 <script>
-    // Exact official 2023-2026 PS&T Salary Schedule Rates
+    // Complete 2023-2026 PS&T Salary Schedule Data (Grades 1-37)
     const pefSchedules = {
-        "2023-2024": {
-            label: "Mar 30, 2023 – Mar 27, 2024 (3% Increase Rate)",
+        "2023": {
+            label: "April 2023 – March 2024 (Base Rates)",
             grades: {
                 1:  { hiring: 27330, job: 35286, adv: 1137 },
+                2:  { hiring: 28383, job: 36625, adv: 1177 },
+                3:  { hiring: 29749, job: 38287, adv: 1220 },
+                4:  { hiring: 31012, job: 39934, adv: 1275 },
+                5:  { hiring: 32363, job: 41586, adv: 1318 },
                 6:  { hiring: 33639, job: 43101, adv: 1352 },
+                7:  { hiring: 35384, job: 45229, adv: 1406 },
+                8:  { hiring: 37190, job: 47444, adv: 1465 },
+                9:  { hiring: 39077, job: 49767, adv: 1527 },
+                10: { hiring: 41088, job: 52272, adv: 1598 },
+                11: { hiring: 43232, job: 54881, adv: 1664 },
                 12: { hiring: 44951, job: 57480, adv: 1790 },
+                13: { hiring: 47414, job: 60462, adv: 1864 },
+                14: { hiring: 49925, job: 63544, adv: 1946 },
+                15: { hiring: 52585, job: 66804, adv: 2031 },
+                16: { hiring: 55374, job: 70267, adv: 2128 },
+                17: { hiring: 58247, job: 73942, adv: 2242 },
                 18: { hiring: 61273, job: 77912, adv: 2377 },
+                19: { hiring: 64408, job: 81755, adv: 2478 },
+                20: { hiring: 67490, job: 85584, adv: 2585 },
+                21: { hiring: 71360, job: 90374, adv: 2716 },
+                22: { hiring: 75454, job: 95420, adv: 2852 },
                 23: { hiring: 79836, job: 100808, adv: 2996 },
+                24: { hiring: 84438, job: 106341, adv: 3129 },
+                25: { hiring: 89379, job: 112349, adv: 3281 },
+                26: { hiring: 94367, job: 118408, adv: 3434 },
                 27: { hiring: 98181, job: 123086, adv: 3558 },
+                28: { hiring: 103525, job: 129482, adv: 3708 },
+                29: { hiring: 109075, job: 136152, adv: 3868 },
+                30: { hiring: 114631, job: 142805, adv: 4025 },
                 31: { hiring: 120495, job: 149461, adv: 4138 },
-                38: { hiring: 169421, job: 169421, adv: 0 }
+                32: { hiring: 126749, job: 156637, adv: 4270 },
+                33: { hiring: 133405, job: 164285, adv: 4411 },
+                34: { hiring: 140417, job: 172322, adv: 4558 },
+                35: { hiring: 147596, job: 180590, adv: 4713 },
+                36: { hiring: 154943, job: 189033, adv: 4870 },
+                37: { hiring: 162981, job: 198084, adv: 5015 }
             }
         },
-        "2024-2025": {
-            label: "Mar 28, 2024 – Mar 26, 2025 (3% Increase Rate)",
+        "2024": {
+            label: "April 2024 – March 2025 (3% General Increase)",
             grades: {
                 1:  { hiring: 28150, job: 36345, adv: 1171 },
+                2:  { hiring: 29234, job: 37724, adv: 1213 },
+                3:  { hiring: 30641, job: 39436, adv: 1256 },
+                4:  { hiring: 31942, job: 41132, adv: 1313 },
+                5:  { hiring: 33334, job: 42834, adv: 1357 },
                 6:  { hiring: 34648, job: 44394, adv: 1393 },
+                7:  { hiring: 36446, job: 46586, adv: 1449 },
+                8:  { hiring: 38306, job: 48867, adv: 1509 },
+                9:  { hiring: 40249, job: 51260, adv: 1573 },
+                10: { hiring: 42321, job: 53840, adv: 1646 },
+                11: { hiring: 44529, job: 56527, adv: 1714 },
                 12: { hiring: 46300, job: 59204, adv: 1844 },
+                13: { hiring: 48836, job: 62276, adv: 1920 },
+                14: { hiring: 51423, job: 65450, adv: 2004 },
+                15: { hiring: 54163, job: 68808, adv: 2092 },
+                16: { hiring: 57035, job: 72375, adv: 2191 },
+                17: { hiring: 59994, job: 76160, adv: 2309 },
                 18: { hiring: 63111, job: 80249, adv: 2448 },
+                19: { hiring: 66340, job: 84208, adv: 2552 },
+                20: { hiring: 69515, job: 88152, adv: 2662 },
+                21: { hiring: 73501, job: 93085, adv: 2798 },
+                22: { hiring: 77718, job: 98283, adv: 2938 },
                 23: { hiring: 82231, job: 103832, adv: 3086 },
+                24: { hiring: 86971, job: 109531, adv: 3223 },
+                25: { hiring: 92060, job: 115719, adv: 3380 },
+                26: { hiring: 97198, job: 121960, adv: 3537 },
                 27: { hiring: 101126, job: 126779, adv: 3665 },
+                28: { hiring: 106631, job: 133366, adv: 3819 },
+                29: { hiring: 112347, job: 140237, adv: 3984 },
+                30: { hiring: 118070, job: 147089, adv: 4146 },
                 31: { hiring: 124110, job: 153945, adv: 4262 },
-                38: { hiring: 174504, job: 174504, adv: 0 }
+                32: { hiring: 130551, job: 161336, adv: 4398 },
+                33: { hiring: 137407, job: 169214, adv: 4544 },
+                34: { hiring: 144630, job: 177492, adv: 4695 },
+                35: { hiring: 152024, job: 186008, adv: 4855 },
+                36: { hiring: 159591, job: 194704, adv: 5016 },
+                37: { hiring: 167870, job: 204027, adv: 5165 }
             }
         },
-        "2025-2026": {
-            label: "Mar 27, 2025 – Mar 31, 2026 (3% Increase Rate)",
+        "2025": {
+            label: "April 2025 – March 2026 (3% General Increase)",
             grades: {
                 1:  { hiring: 28995, job: 37435, adv: 1206 },
+                2:  { hiring: 30111, job: 38856, adv: 1249 },
+                3:  { hiring: 31560, job: 40619, adv: 1294 },
+                4:  { hiring: 32900, job: 42366, adv: 1352 },
+                5:  { hiring: 34334, job: 44119, adv: 1398 },
                 6:  { hiring: 35687, job: 45726, adv: 1434 },
+                7:  { hiring: 37540, job: 47984, adv: 1492 },
+                8:  { hiring: 39455, job: 50333, adv: 1554 },
+                9:  { hiring: 41456, job: 52798, adv: 1620 },
+                10: { hiring: 43591, job: 55455, adv: 1695 },
+                11: { hiring: 45865, job: 58223, adv: 1765 },
                 12: { hiring: 47689, job: 60980, adv: 1899 },
+                13: { hiring: 50301, job: 64144, adv: 1978 },
+                14: { hiring: 52966, job: 67414, adv: 2064 },
+                15: { hiring: 55788, job: 70872, adv: 2155 },
+                16: { hiring: 58746, job: 74546, adv: 2257 },
+                17: { hiring: 61794, job: 78445, adv: 2379 },
                 18: { hiring: 65004, job: 82656, adv: 2522 },
+                19: { hiring: 68330, job: 86734, adv: 2629 },
+                20: { hiring: 71600, job: 90797, adv: 2742 },
+                21: { hiring: 75706, job: 95878, adv: 2882 },
+                22: { hiring: 80050, job: 101231, adv: 3026 },
                 23: { hiring: 84698, job: 106947, adv: 3178 },
+                24: { hiring: 89580, job: 112817, adv: 3320 },
+                25: { hiring: 94822, job: 119191, adv: 3481 },
+                26: { hiring: 100114, job: 125619, adv: 3643 },
                 27: { hiring: 104160, job: 130582, adv: 3775 },
+                28: { hiring: 109830, job: 137367, adv: 3934 },
+                29: { hiring: 115717, job: 144444, adv: 4104 },
+                30: { hiring: 121612, job: 151502, adv: 4270 },
                 31: { hiring: 127833, job: 158563, adv: 4390 },
-                38: { hiring: 179739, job: 179739, adv: 0 }
+                32: { hiring: 134468, job: 166176, adv: 4530 },
+                33: { hiring: 141529, job: 174290, adv: 4680 },
+                34: { hiring: 148969, job: 182817, adv: 4835 },
+                35: { hiring: 156585, job: 191588, adv: 5001 },
+                36: { hiring: 164379, job: 200545, adv: 5167 },
+                37: { hiring: 172906, job: 210148, adv: 5320 }
             }
         }
     };
 
-    // Populate Grade Dropdown
+    // Populate all Salary Grades (1-37)
     const gradeSelect = document.getElementById("salary-grade");
-    const sampleGrades = [1, 6, 12, 18, 23, 27, 31, 38];
-    sampleGrades.forEach(grade => {
+    for (let g = 1; g <= 37; g++) {
         let opt = document.createElement("option");
-        opt.value = grade;
-        opt.textContent = `Grade ${grade}`;
-        if (grade === 23) opt.selected = true;
+        opt.value = g;
+        opt.textContent = `Grade ${g}`;
+        if (g === 23) opt.selected = true;
         gradeSelect.appendChild(opt);
-    });
+    }
 
     function calculateSalary() {
         const grade = document.getElementById("salary-grade").value;
         const tableBody = document.querySelector("#results-table tbody");
         tableBody.innerHTML = "";
 
-        Object.keys(pefSchedules).forEach(periodKey => {
-            const period = pefSchedules[periodKey];
+        Object.keys(pefSchedules).forEach(yearKey => {
+            const period = pefSchedules[yearKey];
             const data = period.grades[grade];
 
             if (data) {
