@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYS PEF Salary Calculator & Progression Tool</title>
+  <title>NYS Salary Calculator & Progression Tool</title>
   <style>
     :root {
       --primary: #003366;
@@ -216,8 +216,8 @@
 <div class="container">
   <header>
     <div>
-      <h1>NYS PEF Salary Calculator</h1>
-      <p class="subtitle">PS&T Unit • Multi-Year Progression Projection</p>
+      <h1>NYS Salary Calculator</h1>
+      <p class="subtitle">Multi-Unit Progression Projection (PEF & M/C)</p>
     </div>
     <div class="theme-switch-wrapper">
       <span>☀️</span>
@@ -233,13 +233,21 @@
     <form id="calc-form">
       <div class="form-grid">
         <div class="form-group">
+          <label for="bargaining-unit">Bargaining Unit</label>
+          <select id="bargaining-unit" onchange="updateGradeDropdown()">
+            <option value="PEF" selected>PEF (PS&T)</option>
+            <option value="MC">M/C (Management/Confidential)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="salary-grade">Salary Grade</label>
           <select id="salary-grade"></select>
         </div>
 
         <div class="form-group">
           <label for="start-date">Appointment Date</label>
-          <input type="date" id="start-date" value="2025-03-15">
+          <input type="date" id="start-date" value="2026-03-26">
         </div>
 
         <div class="form-group">
@@ -268,13 +276,13 @@
   </div>
 
   <div class="card" id="results-card" style="display:none;">
-    <h2>Detailed Progression Timeline</h2>
+    <h2 id="results-title">Detailed Progression Timeline</h2>
     <table id="results-table">
       <thead>
         <tr>
           <th>Date</th>
           <th>Event Description</th>
-          <th>Step Status</th>
+          <th>Status / Grade</th>
           <th style="text-align:right;">Base Salary</th>
           <th style="text-align:right;">Location Pay</th>
           <th style="text-align:right;">Longevity Pay</th>
@@ -283,7 +291,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    <p class="note">* Note: Steps advance annually provided the minimum service period (13 pay periods / 6 months) is met prior to the performance cycle date (April 1 or October 1). Longevity lump sums (LLS) evaluate continuous NYS service milestones (12, 17, and 22 years) or years at Job Rate (5+ and 10+ years).</p>
+    <p class="note" id="results-note">* Note: Steps and schedule rates update based on active unit agreements and continuous state service thresholds.</p>
   </div>
 </div>
 
@@ -300,17 +308,7 @@
     localStorage.setItem('theme', theme);
   });
 
-  // Dynamic Grade Select Setup (SG 1–38)
-  const gradeSelect = document.getElementById("salary-grade");
-  for (let g = 1; g <= 38; g++) {
-    let opt = document.createElement("option");
-    opt.value = g;
-    opt.textContent = `Grade ${g}`;
-    if (g === 25) opt.selected = true;
-    gradeSelect.appendChild(opt);
-  }
-
-  // Baseline Schedule (April 2024 Base Rates)
+  // Data Set: PEF 2024 Base Schedule
   const pef2024Base = {
     1: { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 },
     2: { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
@@ -352,8 +350,7 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
-  // Contract Increase Schedule (2025-2030)
-  const contractIncreases = [
+  const pefContractIncreases = [
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
     { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
     { date: "2027-04-01", pct: 0.040, name: "2027 General Increase (4.0%)" },
@@ -362,23 +359,152 @@
     { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
+  // Data Set: M/C Schedules 2026-2030 (Extracted from PDF)
+  const mcSchedules = {
+    "2026-03-26": {
+      name: "2026 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 32978, job: 42162 }, "M/C 4": { hiring: 34436, job: 44074 },
+        "M/C 5": { hiring: 36501, job: 46214 }, "M/C 6": { hiring: 38051, job: 48583 },
+        "M/C 7": { hiring: 40243, job: 51212 }, "M/C 8": { hiring: 42453, job: 53852 },
+        "M/C 9": { hiring: 44879, job: 56718 }, "M/C 10": { hiring: 47297, job: 59867 },
+        "M/C 11": { hiring: 50166, job: 63188 }, "M/C 12": { hiring: 52814, job: 66504 },
+        "M/C 13": { hiring: 55885, job: 70199 }, "M/C 14": { hiring: 59204, job: 74058 },
+        "M/C 15": { hiring: 62499, job: 78056 }, "M/C 16": { hiring: 66023, job: 82221 },
+        "M/C 17": { hiring: 69770, job: 86757 }, "M/C 18": { hiring: 70139, job: 87034 },
+        "M/C 19": { hiring: 73902, job: 91561 }, "M/C 20": { hiring: 77670, job: 96153 },
+        "M/C 21": { hiring: 81858, job: 101118 }, "M/C 22": { hiring: 86256, job: 106431 },
+        "M/C 23": { hiring: 90678, job: 113292 }, "M1": { hiring: 97874, job: 123715 },
+        "M2": { hiring: 108544, job: 137206 }, "M3": { hiring: 120471, job: 152238 },
+        "M4": { hiring: 133245, job: 168152 }
+      }
+    },
+    "2027-03-25": {
+      name: "2027 M/C Schedule Increase",
+      grades: {
+        "M/C 3": { hiring: 34297, job: 43848 }, "M/C 4": { hiring: 35813, job: 45837 },
+        "M/C 5": { hiring: 37961, job: 48063 }, "M/C 6": { hiring: 39573, job: 50526 },
+        "M/C 7": { hiring: 41853, job: 53260 }, "M/C 8": { hiring: 44151, job: 56006 },
+        "M/C 9": { hiring: 46674, job: 58987 }, "M/C 10": { hiring: 49189, job: 62262 },
+        "M/C 11": { hiring: 52173, job: 65716 }, "M/C 12": { hiring: 54927, job: 69164 },
+        "M/C 13": { hiring: 58120, job: 73007 }, "M/C 14": { hiring: 61572, job: 77020 },
+        "M/C 15": { hiring: 64999, job: 81178 }, "M/C 16": { hiring: 68664, job: 85510 },
+        "M/C 17": { hiring: 72561, job: 90227 }, "M/C 18": { hiring: 72945, job: 90515 },
+        "M/C 19": { hiring: 76858, job: 95223 }, "M/C 20": { hiring: 80777, job: 99999 },
+        "M/C 21": { hiring: 85132, job: 105163 }, "M/C 22": { hiring: 89706, job: 110688 },
+        "M/C 23": { hiring: 94305, job: 117824 }, "M1": { hiring: 101789, job: 128664 },
+        "M2": { hiring: 112886, job: 142694 }, "M3": { hiring: 125290, job: 158328 },
+        "M4": { hiring: 138575, job: 174878 }
+      }
+    },
+    "2028-04-06": {
+      name: "2028 M/C Schedule Increase",
+      grades: {
+        "M/C 3": { hiring: 35497, job: 45383 }, "M/C 4": { hiring: 37066, job: 47441 },
+        "M/C 5": { hiring: 39290, job: 49745 }, "M/C 6": { hiring: 40958, job: 52294 },
+        "M/C 7": { hiring: 43318, job: 55124 }, "M/C 8": { hiring: 45696, job: 57966 },
+        "M/C 9": { hiring: 48308, job: 61052 }, "M/C 10": { hiring: 50911, job: 64441 },
+        "M/C 11": { hiring: 53999, job: 68016 }, "M/C 12": { hiring: 56849, job: 71585 },
+        "M/C 13": { hiring: 60154, job: 75562 }, "M/C 14": { hiring: 63727, job: 79716 },
+        "M/C 15": { hiring: 67274, job: 84019 }, "M/C 16": { hiring: 71067, job: 88503 },
+        "M/C 17": { hiring: 75101, job: 93385 }, "M/C 18": { hiring: 75498, job: 93683 },
+        "M/C 19": { hiring: 79548, job: 98556 }, "M/C 20": { hiring: 83604, job: 103499 },
+        "M/C 21": { hiring: 88112, job: 108844 }, "M/C 22": { hiring: 92846, job: 114562 },
+        "M/C 23": { hiring: 97606, job: 121948 }, "M1": { hiring: 105352, job: 133167 },
+        "M2": { hiring: 116837, job: 147688 }, "M3": { hiring: 129675, job: 163869 },
+        "M4": { hiring: 143425, job: 180999 }
+      }
+    },
+    "2029-04-05": {
+      name: "2029 M/C Schedule Increase",
+      grades: {
+        "M/C 3": { hiring: 36562, job: 46744 }, "M/C 4": { hiring: 38178, job: 48864 },
+        "M/C 5": { hiring: 40469, job: 51237 }, "M/C 6": { hiring: 42187, job: 53863 },
+        "M/C 7": { hiring: 44618, job: 56778 }, "M/C 8": { hiring: 47067, job: 59705 },
+        "M/C 9": { hiring: 49757, job: 62884 }, "M/C 10": { hiring: 52438, job: 66374 },
+        "M/C 11": { hiring: 55619, job: 70056 }, "M/C 12": { hiring: 58554, job: 73733 },
+        "M/C 13": { hiring: 61959, job: 77829 }, "M/C 14": { hiring: 65639, job: 82107 },
+        "M/C 15": { hiring: 69292, job: 86540 }, "M/C 16": { hiring: 73199, job: 91158 },
+        "M/C 17": { hiring: 77354, job: 96187 }, "M/C 18": { hiring: 77763, job: 96493 },
+        "M/C 19": { hiring: 81934, job: 101513 }, "M/C 20": { hiring: 86112, job: 106604 },
+        "M/C 21": { hiring: 90755, job: 112109 }, "M/C 22": { hiring: 95631, job: 117999 },
+        "M/C 23": { hiring: 100534, job: 125606 }, "M1": { hiring: 108513, job: 137162 },
+        "M2": { hiring: 120342, job: 152119 }, "M3": { hiring: 133565, job: 168785 },
+        "M4": { hiring: 147728, job: 186429 }
+      }
+    },
+    "2030-04-04": {
+      name: "2030 M/C Schedule Increase",
+      grades: {
+        "M/C 3": { hiring: 37659, job: 48146 }, "M/C 4": { hiring: 39323, job: 50330 },
+        "M/C 5": { hiring: 41683, job: 52774 }, "M/C 6": { hiring: 43453, job: 55479 },
+        "M/C 7": { hiring: 45957, job: 58481 }, "M/C 8": { hiring: 48479, job: 61496 },
+        "M/C 9": { hiring: 51250, job: 64771 }, "M/C 10": { hiring: 54011, job: 68365 },
+        "M/C 11": { hiring: 57288, job: 72158 }, "M/C 12": { hiring: 60311, job: 75945 },
+        "M/C 13": { hiring: 63818, job: 80164 }, "M/C 14": { hiring: 67608, job: 84570 },
+        "M/C 15": { hiring: 71371, job: 89136 }, "M/C 16": { hiring: 75395, job: 93893 },
+        "M/C 17": { hiring: 79675, job: 99073 }, "M/C 18": { hiring: 80096, job: 99388 },
+        "M/C 19": { hiring: 84392, job: 104558 }, "M/C 20": { hiring: 88695, job: 109802 },
+        "M/C 21": { hiring: 93478, job: 115472 }, "M/C 22": { hiring: 98500, job: 121539 },
+        "M/C 23": { hiring: 103550, job: 129374 }, "M1": { hiring: 111768, job: 141277 },
+        "M2": { hiring: 123952, job: 156683 }, "M3": { hiring: 137572, job: 173849 },
+        "M4": { hiring: 152160, job: 192022 }
+      }
+    }
+  };
+
+  function updateGradeDropdown() {
+    const unit = document.getElementById("bargaining-unit").value;
+    const gradeSelect = document.getElementById("salary-grade");
+    gradeSelect.innerHTML = "";
+
+    if (unit === "PEF") {
+      for (let g = 1; g <= 38; g++) {
+        let opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = `Grade ${g}`;
+        if (g === 25) opt.selected = true;
+        gradeSelect.appendChild(opt);
+      }
+    } else {
+      const mcGrades = [
+        "M/C 3", "M/C 4", "M/C 5", "M/C 6", "M/C 7", "M/C 8", "M/C 9", "M/C 10",
+        "M/C 11", "M/C 12", "M/C 13", "M/C 14", "M/C 15", "M/C 16", "M/C 17",
+        "M/C 18", "M/C 19", "M/C 20", "M/C 21", "M/C 22", "M/C 23",
+        "M1", "M2", "M3", "M4"
+      ];
+      mcGrades.forEach(g => {
+        let opt = document.createElement("option");
+        opt.value = g;
+        opt.textContent = g;
+        if (g === "M/C 18") opt.selected = true;
+        gradeSelect.appendChild(opt);
+      });
+    }
+  }
+
   function parseLocalDate(dateStr) {
     const parts = dateStr.split('-');
     return new Date(parts[0], parts[1] - 1, parts[2]);
   }
 
   function getLongevityPay(totalYearsService, yearsAtJobRate) {
-    if (totalYearsService >= 22) {
-      return 4500;
-    } else if (totalYearsService >= 17 || yearsAtJobRate >= 10) {
-      return 3000;
-    } else if (totalYearsService >= 12 || yearsAtJobRate >= 5) {
-      return 1500;
-    }
+    if (totalYearsService >= 22) return 4500;
+    if (totalYearsService >= 17 || yearsAtJobRate >= 10) return 3000;
+    if (totalYearsService >= 12 || yearsAtJobRate >= 5) return 1500;
     return 0;
   }
 
   function calculateSalary() {
+    const unit = document.getElementById("bargaining-unit").value;
+    if (unit === "PEF") {
+      calculatePEF();
+    } else {
+      calculateMC();
+    }
+  }
+
+  function calculatePEF() {
     const grade = parseInt(document.getElementById("salary-grade").value);
     const startDateStr = document.getElementById("start-date").value;
     const customSalaryInput = document.getElementById("custom-salary").value;
@@ -389,24 +515,20 @@
     const apptDate = parseLocalDate(startDateStr);
     let baseData = pef2024Base[grade];
 
-    // Maintain precision using floating-point values for scale components
     let rawHiring = baseData.hiring;
     let rawAdv = baseData.adv;
     let rawJobAdv = baseData.jobAdv;
     let rawJob = baseData.job;
     let rawCustomSalary = customSalaryInput ? parseFloat(customSalaryInput) : null;
 
-    // Adjust base scale for contract raises occurring before appointment date
-    contractIncreases.forEach(inc => {
+    pefContractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
         rawHiring *= (1 + inc.pct);
         rawAdv *= (1 + inc.pct);
         rawJobAdv *= (1 + inc.pct);
         rawJob *= (1 + inc.pct);
-        if (rawCustomSalary !== null) {
-          rawCustomSalary *= (1 + inc.pct);
-        }
+        if (rawCustomSalary !== null) rawCustomSalary *= (1 + inc.pct);
       }
     });
 
@@ -450,16 +572,10 @@
     }
 
     let rawEvents = [];
-
-    contractIncreases.forEach(inc => {
+    pefContractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate >= apptDate) {
-        rawEvents.push({
-          date: inc.date,
-          type: "CONTRACT",
-          pct: inc.pct,
-          name: inc.name
-        });
+        rawEvents.push({ date: inc.date, type: "CONTRACT", pct: inc.pct, name: inc.name });
       }
     });
 
@@ -468,13 +584,8 @@
       let monthStr = cycleMonth === 4 ? "04" : "10";
       let stepDateStr = `${stepYear}-${monthStr}-01`;
       let stepDate = parseLocalDate(stepDateStr);
-
       if (stepDate > apptDate) {
-        rawEvents.push({
-          date: stepDateStr,
-          type: "STEP",
-          stepNum: s
-        });
+        rawEvents.push({ date: stepDateStr, type: "STEP", stepNum: s });
       }
     }
 
@@ -503,18 +614,12 @@
           rawCustomSalary *= (1 + contractEv.pct);
           currentSalary = Math.round(rawCustomSalary);
         } else {
-          // Reconstruct step salary from unrounded component schedule matrix
           let curHiring = Math.round(rawHiring);
           let curAdv = Math.round(rawAdv);
           let curJob = Math.round(rawJob);
-
-          if (currentStep === 0) {
-            currentSalary = curHiring;
-          } else if (currentStep === 7) {
-            currentSalary = curJob;
-          } else {
-            currentSalary = curHiring + (currentStep * curAdv);
-          }
+          if (currentStep === 0) currentSalary = curHiring;
+          else if (currentStep === 7) currentSalary = curJob;
+          else currentSalary = curHiring + (currentStep * curAdv);
         }
 
         let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
@@ -535,9 +640,7 @@
       let stepEv = group.find(e => e.type === "STEP");
       if (stepEv && currentStep < 7) {
         currentStep++;
-        if (currentStep === 7 && !jobRateDate) {
-          jobRateDate = parseLocalDate(dateStr);
-        }
+        if (currentStep === 7 && !jobRateDate) jobRateDate = parseLocalDate(dateStr);
 
         let curHiring = Math.round(rawHiring);
         let curAdv = Math.round(rawAdv);
@@ -545,17 +648,11 @@
         let curJob = Math.round(rawJob);
 
         if (rawCustomSalary !== null) {
-          if (currentStep === 7) {
-            currentSalary = Math.min(currentSalary + curJobAdv, curJob);
-          } else {
-            currentSalary += curAdv;
-          }
+          if (currentStep === 7) currentSalary = Math.min(currentSalary + curJobAdv, curJob);
+          else currentSalary += curAdv;
         } else {
-          if (currentStep === 7) {
-            currentSalary = curJob;
-          } else {
-            currentSalary = curHiring + (currentStep * curAdv);
-          }
+          if (currentStep === 7) currentSalary = curJob;
+          else currentSalary = curHiring + (currentStep * curAdv);
         }
 
         let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
@@ -574,10 +671,86 @@
       }
     });
 
+    renderTable(displayEvents);
+  }
+
+  function calculateMC() {
+    const grade = document.getElementById("salary-grade").value;
+    const startDateStr = document.getElementById("start-date").value;
+    const customSalaryInput = document.getElementById("custom-salary").value;
+    const locationPay = parseFloat(document.getElementById("location-pay").value) || 0;
+    const priorService = parseFloat(document.getElementById("prior-service").value) || 0;
+    if (!startDateStr) return;
+
+    const apptDate = parseLocalDate(startDateStr);
+    let displayEvents = [];
+
+    // Find starting baseline schedule
+    let sortedScheduleDates = Object.keys(mcSchedules).sort((a, b) => parseLocalDate(a) - parseLocalDate(b));
+    let initialScheduleKey = sortedScheduleDates[0];
+    
+    for (let key of sortedScheduleDates) {
+      if (parseLocalDate(key) <= apptDate) {
+        initialScheduleKey = key;
+      }
+    }
+
+    let currentGradeData = mcSchedules[initialScheduleKey].grades[grade];
+    let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentGradeData.hiring;
+    let initialLongevity = getLongevityPay(priorService, 0);
+
+    displayEvents.push({
+      date: startDateStr,
+      desc: customSalaryInput ? "Initial M/C Appointment (Custom Rate)" : "Initial M/C Appointment (Hiring Rate)",
+      step: grade,
+      salary: Math.round(currentSalary),
+      locPay: locationPay,
+      longPay: initialLongevity,
+      totalSalary: Math.round(currentSalary) + locationPay + initialLongevity,
+      badgeClass: "event-initial"
+    });
+
+    // Process future schedule date changes
+    sortedScheduleDates.forEach(dateStr => {
+      let scheduleDate = parseLocalDate(dateStr);
+      if (scheduleDate > apptDate) {
+        let sched = mcSchedules[dateStr];
+        let gradeInfo = sched.grades[grade];
+        let elapsedYears = (scheduleDate - apptDate) / (1000 * 60 * 60 * 24 * 365.25);
+        let totalServiceYears = priorService + elapsedYears;
+
+        // Scale current salary proportionately or adjust to schedule hiring floor
+        let prevKeyIndex = sortedScheduleDates.indexOf(dateStr) - 1;
+        let prevKey = sortedScheduleDates[prevKeyIndex];
+        let prevGradeInfo = mcSchedules[prevKey].grades[grade];
+
+        let pctIncrease = (gradeInfo.hiring - prevGradeInfo.hiring) / prevGradeInfo.hiring;
+        currentSalary = Math.max(currentSalary * (1 + pctIncrease), gradeInfo.hiring);
+        currentSalary = Math.min(currentSalary, gradeInfo.job);
+
+        let longevityPay = getLongevityPay(totalServiceYears, 0);
+
+        displayEvents.push({
+          date: dateStr,
+          desc: sched.name,
+          step: grade,
+          salary: Math.round(currentSalary),
+          locPay: locationPay,
+          longPay: longevityPay,
+          totalSalary: Math.round(currentSalary) + locationPay + longevityPay,
+          badgeClass: "event-contract"
+        });
+      }
+    });
+
+    renderTable(displayEvents);
+  }
+
+  function renderTable(events) {
     const tableBody = document.querySelector("#results-table tbody");
     tableBody.innerHTML = "";
 
-    displayEvents.forEach(ev => {
+    events.forEach(ev => {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${ev.date}</td>
@@ -593,6 +766,9 @@
 
     document.getElementById("results-card").style.display = "block";
   }
+
+  // Initialize dropdown on page load
+  updateGradeDropdown();
 </script>
 
 </body>
