@@ -334,17 +334,14 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
-  // General Increase Schedule
+  // Updated Contract Increase Schedule (2025-2030)
   const contractIncreases = [
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
-    { date: "2026-04-01", pct: 0.030, name: "2026 General Increase (3.0%)" },
-    { date: "2027-04-01", pct: 0.030, name: "2027 General Increase (3.0%)" },
-    { date: "2028-04-01", pct: 0.030, name: "2028 General Increase (3.0%)" },
+    { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
+    { date: "2027-04-01", pct: 0.040, name: "2027 General Increase (4.0%)" },
+    { date: "2028-04-01", pct: 0.035, name: "2028 General Increase (3.5%)" },
     { date: "2029-04-01", pct: 0.030, name: "2029 General Increase (3.0%)" },
-    { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" },
-    { date: "2031-04-01", pct: 0.030, name: "2031 General Increase (3.0%)" },
-    { date: "2032-04-01", pct: 0.030, name: "2032 General Increase (3.0%)" },
-    { date: "2033-04-01", pct: 0.030, name: "2033 General Increase (3.0%)" }
+    { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
   function parseLocalDate(dateStr) {
@@ -366,7 +363,7 @@
     let currentJobAdv = baseData.jobAdv;
     let currentJob = baseData.job;
 
-    // Bring base schedule up to appointment date rate
+    // Adjust base scale for contract raises occurring before appointment date
     contractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
