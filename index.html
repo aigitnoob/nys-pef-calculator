@@ -3,126 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYS PEF Salary Progression Calculator</title>
+  <title>NYS PEF Salary & Step Projection Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 p-6 font-sans">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md border border-slate-200">
-    <h1 class="text-2xl font-bold mb-2 text-slate-900">NYS PEF Salary Calculator</h1>
-    <p class="text-sm text-slate-600 mb-6">Select your Grade and Hire Date to project your future earnings under the 2026–2031 PEF Contract.</p>
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md border border-slate-200">
+    <h1 class="text-2xl font-bold mb-1 text-slate-900">NYS PEF Salary Progression Calculator</h1>
+    <p class="text-sm text-slate-600 mb-6">Projects Performance Advances (Steps 1–7), General Contract Raises, and Retro Dates.</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
         <label class="block text-sm font-semibold mb-1">Hire Date</label>
-        <input type="date" id="hireDate" class="w-full border rounded p-2 text-sm border-slate-300">
+        <input type="date" id="hireDate" value="2024-03-14" class="w-full border rounded p-2 text-sm border-slate-300">
       </div>
       <div>
         <label class="block text-sm font-semibold mb-1">Salary Grade</label>
-        <select id="salaryGrade" onchange="updateBaseSalary()" class="w-full border rounded p-2 text-sm border-slate-300 bg-white">
-          <option value="">-- Select Grade --</option>
-          <!-- JavaScript will populate grades 1-37 here -->
+        <select id="salaryGrade" class="w-full border rounded p-2 text-sm border-slate-300 bg-white">
+          <!-- JS will populate options -->
         </select>
-      </div>
-      <div>
-        <label class="block text-sm font-semibold mb-1">Starting Salary ($)</label>
-        <input type="number" id="baseSalary" placeholder="Auto-fills from Grade" class="w-full border rounded p-2 text-sm border-slate-300 bg-slate-50">
       </div>
     </div>
 
-    <button onclick="calculateSalary()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition">Calculate Projection</button>
+    <button onclick="calculateProjection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition">Calculate Future Progression</button>
 
     <div id="results" class="mt-6 hidden">
-      <div id="stepInfo" class="p-3 bg-blue-50 text-blue-900 rounded-lg text-sm font-medium mb-4"></div>
-      <table class="w-full text-left text-sm border-collapse">
-        <thead>
-          <tr class="border-b border-slate-300 text-slate-600">
-            <th class="py-2">Date</th>
-            <th class="py-2">Event / Raise</th>
-            <th class="py-2">Projected Base Salary</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
+      <div id="summaryCard" class="p-4 bg-blue-50 text-blue-900 rounded-lg text-sm mb-6 space-y-1"></div>
+      
+      <h2 class="text-base font-bold text-slate-900 mb-2">Earnings & Step Timeline</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-slate-300 text-slate-600 bg-slate-100">
+              <th class="p-2">Effective Date</th>
+              <th class="p-2">Event Type</th>
+              <th class="p-2">Step #</th>
+              <th class="p-2">Base Salary</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
   <script>
-    // 2026 PEF Salary Schedule (April 2026 Hiring Rates, Grades 1-37)
-    const pefHiringRates = {
-      1: 28815, 2: 29908, 3: 31372, 4: 32780, 5: 34333,
-      6: 36173, 7: 38204, 8: 40307, 9: 42552, 10: 44965,
-      11: 47541, 12: 50209, 13: 53132, 14: 56183, 15: 59363,
-      16: 62694, 17: 66212, 18: 69964, 19: 73755, 20: 77532,
-      21: 81642, 22: 86031, 23: 90582, 24: 95406, 25: 100671,
-      26: 105973, 27: 111708, 28: 117592, 29: 123754, 30: 130222,
-      31: 137163, 32: 144455, 33: 152313, 34: 160426, 35: 168742,
-      36: 177224, 37: 186525
-    };
-
-    // Populate the grade drop-down on page load
-    const selectElem = document.getElementById('salaryGrade');
-    for (let g = 1; g <= 37; g++) {
-      const opt = document.createElement('option');
-      opt.value = g;
-      opt.textContent = `Grade ${g}`;
-      selectElem.appendChild(opt);
-    }
-
-    // Auto-fill salary when a grade is chosen
-    function updateBaseSalary() {
-      const selectedGrade = document.getElementById('salaryGrade').value;
-      const salaryInput = document.getElementById('baseSalary');
-      if (selectedGrade && pefHiringRates[selectedGrade]) {
-        salaryInput.value = pefHiringRates[selectedGrade];
-      }
-    }
-
-    // Run the projection logic
-    function calculateSalary() {
-      const dateVal = document.getElementById('hireDate').value;
-      const baseSalaryVal = parseFloat(document.getElementById('baseSalary').value);
-
-      if (!dateVal || isNaN(baseSalaryVal)) {
-        alert('Please select your Hire Date and Grade/Starting Salary.');
-        return;
-      }
-
-      const hireDate = new Date(dateVal + 'T00:00:00');
-      const month = hireDate.getMonth() + 1;
-      const day = hireDate.getDate();
-
-      // Determine step cycle: Oct 2 - Apr 1 -> April | Apr 2 - Oct 1 -> October
-      let incrementMonth = "October";
-      if ((month === 10 && day >= 2) || month > 10 || month < 4 || (month === 4 && day === 1)) {
-        incrementMonth = "April";
-      }
-
-      document.getElementById('stepInfo').innerHTML = `<strong>Step Increment Cycle:</strong> Your annual performance advances will occur every <strong>${incrementMonth}</strong>.`;
-
-      // 2026-2031 PEF Contract Increases
-      const raises = [
-        { year: 2026, label: "4.5% Contract Increase", rate: 0.045 },
-        { year: 2027, label: "4.0% Contract Increase", rate: 0.040 },
-        { year: 2028, label: "3.5% Contract Increase", rate: 0.035 },
-        { year: 2029, label: "3.0% Contract Increase", rate: 0.030 },
-        { year: 2030, label: "3.0% Contract Increase", rate: 0.030 }
-      ];
-
-      let currentSalary = baseSalaryVal;
-      let html = '';
-
-      raises.forEach(r => {
-        currentSalary = currentSalary * (1 + r.rate);
-        html += `<tr class="border-b border-slate-100">
-          <td class="py-2">${r.year} (${incrementMonth})</td>
-          <td class="py-2 text-slate-600">${r.label}</td>
-          <td class="py-2 font-semibold text-slate-900">$${Math.round(currentSalary).toLocaleString()}</td>
-        </tr>`;
-      });
-
-      document.getElementById('tableBody').innerHTML = html;
-      document.getElementById('results').classList.remove('hidden');
-    }
-  </script>
-</body>
-</html>
+    // April 2024 Base PEF Salary Schedule (Hiring Rate & Job Rate)
+    const baseSchedule2024 = {
+      1:  { hire: 26771, job: 34540 }, 2:  { hire: 27786, job: 35942 },
+      3:  { hire: 29147, job: 37692 }, 4:  { hire: 30454, job: 39450 },
+      5:  { hire: 31898, job: 41328 }, 6:  { hire: 33607, job: 43521 },
+      7:  { hire: 35494, job: 45864 }, 8:  { hire: 37448, job: 48294 },
+      9:  { hire: 39534, job: 50884 }, 10: { hire: 41776, job: 53708 },
+      11: { hire: 44169, job: 56743 }, 12: { hire: 46648, job: 59757 },
+      13: { hire: 49363, job: 63169 }, 14: { hire: 52198, job: 66634 },
+      15: { hire: 55152, job: 70317 }, 16: { hire: 58247, job: 74135 },
+      17: { hire: 61516, job: 78307 }, 18: { hire: 65001, job: 82655 },
+      19: { hire: 68523, job: 87031 }, 20: { hire: 72032, job: 91383 },
+      21: {
