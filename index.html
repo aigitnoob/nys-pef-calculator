@@ -334,7 +334,7 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
-  // Updated Contract Increase Schedule (2025-2030)
+  // Contract Increase Schedule (2025-2030)
   const contractIncreases = [
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
     { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
@@ -358,31 +358,37 @@
     const apptDate = parseLocalDate(startDateStr);
     let baseData = pef2024Base[grade];
 
-    let currentHiring = baseData.hiring;
-    let currentAdv = baseData.adv;
-    let currentJobAdv = baseData.jobAdv;
-    let currentJob = baseData.job;
+    // Maintain precision using floating-point values for scale components
+    let rawHiring = baseData.hiring;
+    let rawAdv = baseData.adv;
+    let rawJobAdv = baseData.jobAdv;
+    let rawJob = baseData.job;
+    let rawCustomSalary = customSalaryInput ? parseFloat(customSalaryInput) : null;
 
     // Adjust base scale for contract raises occurring before appointment date
     contractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
-        currentHiring = Math.round(currentHiring * (1 + inc.pct));
-        currentAdv = Math.round(currentAdv * (1 + inc.pct));
-        currentJobAdv = Math.round(currentJobAdv * (1 + inc.pct));
-        currentJob = Math.round(currentJob * (1 + inc.pct));
+        rawHiring *= (1 + inc.pct);
+        rawAdv *= (1 + inc.pct);
+        rawJobAdv *= (1 + inc.pct);
+        rawJob *= (1 + inc.pct);
+        if (rawCustomSalary !== null) {
+          rawCustomSalary *= (1 + inc.pct);
+        }
       }
     });
 
-    let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentHiring;
     let currentStep = 0;
     let displayEvents = [];
+
+    let currentSalary = rawCustomSalary !== null ? Math.round(rawCustomSalary) : Math.round(rawHiring);
 
     displayEvents.push({
       date: startDateStr,
       desc: customSalaryInput ? "Initial Appointment (Custom Rate)" : "Initial Appointment (Hiring Rate)",
       step: "Step 0",
-      salary: Math.round(currentSalary),
+      salary: currentSalary,
       badgeClass: "event-initial"
     });
 
@@ -449,12 +455,28 @@
       
       let contractEv = group.find(e => e.type === "CONTRACT");
       if (contractEv) {
-        currentHiring = Math.round(currentHiring * (1 + contractEv.pct));
-        currentAdv = Math.round(currentAdv * (1 + contractEv.pct));
-        currentJobAdv = Math.round(currentJobAdv * (1 + contractEv.pct));
-        currentJob = Math.round(currentJob * (1 + contractEv.pct));
+        rawHiring *= (1 + contractEv.pct);
+        rawAdv *= (1 + contractEv.pct);
+        rawJobAdv *= (1 + contractEv.pct);
+        rawJob *= (1 + contractEv.pct);
 
-        currentSalary = Math.round(currentSalary * (1 + contractEv.pct));
+        if (rawCustomSalary !== null) {
+          rawCustomSalary *= (1 + contractEv.pct);
+          currentSalary = Math.round(rawCustomSalary);
+        } else {
+          // Reconstruct step salary from unrounded component schedule matrix
+          let curHiring = Math.round(rawHiring);
+          let curAdv = Math.round(rawAdv);
+          let curJob = Math.round(rawJob);
+
+          if (currentStep === 0) {
+            currentSalary = curHiring;
+          } else if (currentStep === 7) {
+            currentSalary = curJob;
+          } else {
+            currentSalary = curHiring + (currentStep * curAdv);
+          }
+        }
 
         displayEvents.push({
           date: dateStr,
@@ -468,19 +490,30 @@
       let stepEv = group.find(e => e.type === "STEP");
       if (stepEv && currentStep < 7) {
         currentStep++;
-        if (currentStep === 7) {
-          currentSalary = customSalaryInput
-            ? Math.min(currentSalary + currentJobAdv, currentJob)
-            : currentJob;
+        let curHiring = Math.round(rawHiring);
+        let curAdv = Math.round(rawAdv);
+        let curJobAdv = Math.round(rawJobAdv);
+        let curJob = Math.round(rawJob);
+
+        if (rawCustomSalary !== null) {
+          if (currentStep === 7) {
+            currentSalary = Math.min(currentSalary + curJobAdv, curJob);
+          } else {
+            currentSalary += curAdv;
+          }
         } else {
-          currentSalary += currentAdv;
+          if (currentStep === 7) {
+            currentSalary = curJob;
+          } else {
+            currentSalary = curHiring + (currentStep * curAdv);
+          }
         }
 
         displayEvents.push({
           date: dateStr,
           desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
-          salary: Math.round(currentSalary),
+          salary: currentSalary,
           badgeClass: "event-step"
         });
       }
