@@ -359,7 +359,7 @@
     { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
-  // Data Set: M/C Schedules 2026-2030 (Extracted from PDF)
+  // Data Set: M/C Schedules 2026-2030
   const mcSchedules = {
     "2026-03-26": {
       name: "2026 M/C Salary Schedule",
@@ -493,6 +493,14 @@
     if (totalYearsService >= 17 || yearsAtJobRate >= 10) return 3000;
     if (totalYearsService >= 12 || yearsAtJobRate >= 5) return 1500;
     return 0;
+  }
+
+  function isMcLongevityEligible(gradeStr) {
+    if (gradeStr.startsWith("M/C ")) {
+      const gNum = parseInt(gradeStr.replace("M/C ", ""), 10);
+      return !isNaN(gNum) && gNum <= 17;
+    }
+    return false; // M1, M2, M3, M4, etc.
   }
 
   function calculateSalary() {
@@ -697,7 +705,9 @@
 
     let currentGradeData = mcSchedules[initialScheduleKey].grades[grade];
     let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentGradeData.hiring;
-    let initialLongevity = getLongevityPay(priorService, 0);
+    
+    // Check longevity eligibility (Grade 17 and below)
+    let initialLongevity = isMcLongevityEligible(grade) ? getLongevityPay(priorService, 0) : 0;
 
     displayEvents.push({
       date: startDateStr,
@@ -730,7 +740,7 @@
           currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : gradeInfo.hiring;
         }
 
-        let longevityPay = getLongevityPay(totalServiceYears, 0);
+        let longevityPay = isMcLongevityEligible(grade) ? getLongevityPay(totalServiceYears, 0) : 0;
 
         displayEvents.push({
           date: dateStr,
