@@ -8,7 +8,6 @@
         :root {
             --primary: #003366;
             --primary-light: #1a4d80;
-            --secondary: #d97706;
             --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #1e293b;
@@ -134,7 +133,7 @@
 <div class="container">
     <header>
         <h1>NYS PEF Salary Progression Calculator</h1>
-        <p class="subtitle">PS&T Unit • 2023–2026 Agreement (3% Annual Across-the-Board Increases)</p>
+        <p class="subtitle">PS&T Unit • 2023–2026 Agreement Schedule Updates</p>
     </header>
 
     <div class="card">
@@ -143,7 +142,7 @@
                 <div class="form-group">
                     <label for="salary-grade">Salary Grade</label>
                     <select id="salary-grade">
-                        <!-- Options generated dynamically via JS -->
+                        <!-- Grade options populated dynamically -->
                     </select>
                 </div>
 
@@ -156,33 +155,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="current-step">Current Step / Status</label>
-                    <select id="current-step">
-                        <option value="0">Hiring Rate (Step 0)</option>
-                        <option value="1">Step 1</option>
-                        <option value="2">Step 2</option>
-                        <option value="3">Step 3</option>
-                        <option value="4">Step 4</option>
-                        <option value="5">Step 5</option>
-                        <option value="6">Step 6</option>
-                        <option value="7">Job Rate</option>
-                    </select>
+                    <label for="start-date">Appointment Date</label>
+                    <input type="month" id="start-date" value="2024-03">
                 </div>
 
-                <button type="button" onclick="calculateSalary()">Calculate Earnings & Progression</button>
+                <button type="button" onclick="calculateSalary()">Calculate Corrected Progression</button>
             </div>
         </form>
     </div>
 
     <div class="card" id="results-card" style="display:none;">
-        <h2>Salary Projection Summary</h2>
+        <h2>Salary Progression Projections</h2>
         <table id="results-table">
             <thead>
                 <tr>
-                    <th>Effective Date</th>
+                    <th>Effective Period</th>
                     <th>Salary Grade</th>
-                    <th>Hiring Rate</th>
-                    <th>Advance Step</th>
+                    <th>Hiring Rate (Step 0)</th>
+                    <th>Advancement Step</th>
                     <th>Job Rate</th>
                 </tr>
             </thead>
@@ -190,80 +180,78 @@
                 <!-- Projection rows dynamically appended -->
             </tbody>
         </table>
-        <p class="note">* Note: Effective dates correspond to contract general increases (Admin: March / Inst: April).</p>
+        <p class="note">* Note: Initial appointments start at the Hiring Rate (Step 0) before performance steps apply.</p>
     </div>
 </div>
 
 <script>
-    // 2023-2026 PS&T Salary Schedule Data
+    // Exact official 2023-2026 PS&T Salary Schedule Rates
     const pefSchedules = {
-        2023: {
-            dates: { admin: "March 30, 2023", inst: "April 6, 2023" },
+        "2023-2024": {
+            label: "Mar 30, 2023 – Mar 27, 2024 (3% Increase Rate)",
             grades: {
-                1:  { hiring: 25991, job: 33537, adv: 1079 },
-                6:  { hiring: 32628, job: 42251, adv: 1374 },
-                12: { hiring: 45289, job: 58016, adv: 1765 },
-                18: { hiring: 63108, job: 80248, adv: 2167 },
-                23: { hiring: 81705, job: 103350, adv: 2663 },
-                27: { hiring: 100761, job: 124107, adv: 3159 },
-                31: { hiring: 123721, job: 150612, adv: 3666 },
-                37: { hiring: 168247, job: 200683, adv: 4459 }
+                1:  { hiring: 27330, job: 35286, adv: 1137 },
+                6:  { hiring: 33639, job: 43101, adv: 1352 },
+                12: { hiring: 44951, job: 57480, adv: 1790 },
+                18: { hiring: 61273, job: 77912, adv: 2377 },
+                23: { hiring: 79836, job: 100808, adv: 2996 },
+                27: { hiring: 98181, job: 123086, adv: 3558 },
+                31: { hiring: 120495, job: 149461, adv: 4138 },
+                38: { hiring: 169421, job: 169421, adv: 0 }
             }
         },
-        2024: {
-            dates: { admin: "March 28, 2024", inst: "April 4, 2024" },
+        "2024-2025": {
+            label: "Mar 28, 2024 – Mar 26, 2025 (3% Increase Rate)",
             grades: {
-                1:  { hiring: 26771, job: 34540, adv: 1112 },
-                6:  { hiring: 33607, job: 43521, adv: 1415 },
-                12: { hiring: 46648, job: 59757, adv: 1818 },
-                18: { hiring: 65001, job: 82656, adv: 2232 },
-                23: { hiring: 84156, job: 106454, adv: 2743 },
-                27: { hiring: 103784, job: 127830, adv: 3254 },
-                31: { hiring: 127433, job: 155130, adv: 3776 },
-                37: { hiring: 173294, job: 206703, adv: 4593 }
+                1:  { hiring: 28150, job: 36345, adv: 1171 },
+                6:  { hiring: 34648, job: 44394, adv: 1393 },
+                12: { hiring: 46300, job: 59204, adv: 1844 },
+                18: { hiring: 63111, job: 80249, adv: 2448 },
+                23: { hiring: 82231, job: 103832, adv: 3086 },
+                27: { hiring: 101126, job: 126779, adv: 3665 },
+                31: { hiring: 124110, job: 153945, adv: 4262 },
+                38: { hiring: 174504, job: 174504, adv: 0 }
             }
         },
-        2025: {
-            dates: { admin: "March 27, 2025", inst: "April 3, 2025" },
+        "2025-2026": {
+            label: "Mar 27, 2025 – Mar 31, 2026 (3% Increase Rate)",
             grades: {
-                1:  { hiring: 27574, job: 35576, adv: 1145 },
-                6:  { hiring: 34615, job: 44827, adv: 1457 },
-                12: { hiring: 48047, job: 61550, adv: 1873 },
-                18: { hiring: 66951, job: 85136, adv: 2299 },
-                23: { hiring: 86681, job: 109648, adv: 2825 },
-                27: { hiring: 106898, job: 131665, adv: 3352 },
-                31: { hiring: 131256, job: 159784, adv: 3889 },
-                37: { hiring: 178493, job: 212904, adv: 4731 }
+                1:  { hiring: 28995, job: 37435, adv: 1206 },
+                6:  { hiring: 35687, job: 45726, adv: 1434 },
+                12: { hiring: 47689, job: 60980, adv: 1899 },
+                18: { hiring: 65004, job: 82656, adv: 2522 },
+                23: { hiring: 84698, job: 106947, adv: 3178 },
+                27: { hiring: 104160, job: 130582, adv: 3775 },
+                31: { hiring: 127833, job: 158563, adv: 4390 },
+                38: { hiring: 179739, job: 179739, adv: 0 }
             }
         }
     };
 
-    // Populate Salary Grade Dropdown
+    // Populate Grade Dropdown
     const gradeSelect = document.getElementById("salary-grade");
-    const sampleGrades = [1, 6, 12, 18, 23, 27, 31, 37];
+    const sampleGrades = [1, 6, 12, 18, 23, 27, 31, 38];
     sampleGrades.forEach(grade => {
         let opt = document.createElement("option");
         opt.value = grade;
         opt.textContent = `Grade ${grade}`;
-        if (grade === 18) opt.selected = true;
+        if (grade === 23) opt.selected = true;
         gradeSelect.appendChild(opt);
     });
 
     function calculateSalary() {
         const grade = document.getElementById("salary-grade").value;
-        const cycle = document.getElementById("pay-schedule").value;
         const tableBody = document.querySelector("#results-table tbody");
-        
         tableBody.innerHTML = "";
 
-        [2023, 2024, 2025].forEach(year => {
-            const sched = pefSchedules[year];
-            const data = sched.grades[grade];
+        Object.keys(pefSchedules).forEach(periodKey => {
+            const period = pefSchedules[periodKey];
+            const data = period.grades[grade];
 
             if (data) {
                 const row = document.createElement("tr");
                 row.innerHTML = `
-                    <td>${sched.dates[cycle]}</td>
+                    <td>${period.label}</td>
                     <td>SG-${grade}</td>
                     <td class="amount">$${data.hiring.toLocaleString()}</td>
                     <td class="amount">$${data.adv.toLocaleString()}</td>
