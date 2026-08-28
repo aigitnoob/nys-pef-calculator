@@ -12,8 +12,33 @@
             --card-bg: #ffffff;
             --text: #1e293b;
             --border: #e2e8f0;
-            --badge-step: #d97706;
-            --badge-contract: #2563eb;
+            --header-border: #003366;
+            --table-header-bg: #f1f5f9;
+            --input-bg: #ffffff;
+            --badge-initial-bg: #e2e8f0;
+            --badge-initial-text: #334155;
+            --badge-step-bg: #fef3c7;
+            --badge-step-text: #92400e;
+            --badge-contract-bg: #dbeafe;
+            --badge-contract-text: #1e40af;
+        }
+
+        [data-theme="dark"] {
+            --primary: #38bdf8;
+            --primary-light: #7dd3fc;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --border: #334155;
+            --header-border: #38bdf8;
+            --table-header-bg: #334155;
+            --input-bg: #0f172a;
+            --badge-initial-bg: #334155;
+            --badge-initial-text: #e2e8f0;
+            --badge-step-bg: #78350f;
+            --badge-step-text: #fef3c7;
+            --badge-contract-bg: #1e3a8a;
+            --badge-contract-text: #dbeafe;
         }
 
         body {
@@ -23,6 +48,7 @@
             margin: 0;
             padding: 20px;
             line-height: 1.5;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .container {
@@ -31,20 +57,83 @@
         }
 
         header {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 2rem;
-            border-bottom: 3px solid var(--primary);
+            border-bottom: 3px solid var(--header-border);
             padding-bottom: 1rem;
+        }
+
+        .header-title-container {
+            text-align: left;
         }
 
         h1 {
             color: var(--primary);
-            margin-bottom: 0.25rem;
+            margin: 0 0 0.25rem 0;
         }
 
         .subtitle {
-            color: #64748b;
+            color: var(--text);
+            opacity: 0.7;
             font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Toggle Switch Styling */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 24px;
+            position: relative;
+            width: 48px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #ccc;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 3px;
+            content: "";
+            height: 18px;
+            left: 3px;
+            position: absolute;
+            transition: .4s;
+            width: 18px;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        .mode-label {
+            font-size: 0.85rem;
+            font-weight: 600;
         }
 
         .card {
@@ -54,6 +143,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             margin-bottom: 1.5rem;
             border: 1px solid var(--border);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         .form-grid {
@@ -79,11 +169,14 @@
             border: 1px solid var(--border);
             border-radius: 4px;
             font-size: 1rem;
+            background-color: var(--input-bg);
+            color: var(--text);
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
         button {
             grid-column: 1 / -1;
-            background-color: var(--primary);
+            background-color: #003366;
             color: white;
             border: none;
             padding: 0.75rem;
@@ -94,8 +187,12 @@
             transition: background 0.2s;
         }
 
+        [data-theme="dark"] button {
+            background-color: #2563eb;
+        }
+
         button:hover {
-            background-color: var(--primary-light);
+            opacity: 0.9;
         }
 
         table {
@@ -111,7 +208,7 @@
         }
 
         th {
-            background-color: #f1f5f9;
+            background-color: var(--table-header-bg);
             color: var(--primary);
             font-size: 0.85rem;
             text-transform: uppercase;
@@ -132,13 +229,14 @@
             display: inline-block;
         }
 
-        .event-initial { background-color: #e2e8f0; color: #334155; }
-        .event-step { background-color: #fef3c7; color: #92400e; }
-        .event-contract { background-color: #dbeafe; color: #1e40af; }
+        .event-initial { background-color: var(--badge-initial-bg); color: var(--badge-initial-text); }
+        .event-step { background-color: var(--badge-step-bg); color: var(--badge-step-text); }
+        .event-contract { background-color: var(--badge-contract-bg); color: var(--badge-contract-text); }
 
         .note {
             font-size: 0.8rem;
-            color: #64748b;
+            color: var(--text);
+            opacity: 0.7;
             margin-top: 0.5rem;
         }
     </style>
@@ -147,8 +245,18 @@
 
 <div class="container">
     <header>
-        <h1>NYS PEF Salary Calculator</h1>
-        <p class="subtitle">PS&T Unit • Progression & Multi-Year Projection (2023–2031)</p>
+        <div class="header-title-container">
+            <h1>NYS PEF Salary Calculator</h1>
+            <p class="subtitle">PS&T Unit • Progression & Multi-Year Projection (2023–2031)</p>
+        </div>
+        <div class="theme-switch-wrapper">
+            <span class="mode-label">☀️</span>
+            <label class="theme-switch" for="checkbox">
+                <input type="checkbox" id="checkbox" />
+                <div class="slider"></div>
+            </label>
+            <span class="mode-label">🌙</span>
+        </div>
     </header>
 
     <div class="card">
@@ -168,7 +276,7 @@
 
                 <div class="form-group">
                     <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
-                    <input type="number" id="custom-salary" placeholder="Leave blank for standard scale">
+                    <input type="number" id="custom-salary" placeholder="e.g. 93530">
                 </div>
 
                 <button type="button" onclick="calculateSalary()">Calculate Full Progression</button>
@@ -196,6 +304,29 @@
 </div>
 
 <script>
+    // Theme Switch Logic
+    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+    const currentTheme = localStorage.getItem('theme');
+
+    if (currentTheme) {
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        if (currentTheme === 'dark') {
+            toggleSwitch.checked = true;
+        }
+    }
+
+    function switchTheme(e) {
+        if (e.target.checked) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+            localStorage.setItem('theme', 'light');
+        }    
+    }
+
+    toggleSwitch.addEventListener('change', switchTheme, false);
+
     // Base 2023 PS&T Schedule Baseline Data (Grades 1-37)
     const pefBaseSchedule = {
         1:  { hiring: 27330, job: 35286, adv: 1137 },
@@ -237,7 +368,7 @@
         37: { hiring: 162981, job: 198084, adv: 5015 }
     };
 
-    // Contract General Increase Multipliers starting 2024 (2023 rate is already base)
+    // Contract General Increase Multipliers starting 2024
     const contractIncreases = [
         { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
         { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
@@ -248,13 +379,11 @@
         { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
     ];
 
-    // Helper function to parse local YYYY-MM-DD safely without UTC shifts
     function parseLocalDate(dateStr) {
         const parts = dateStr.split('-');
         return new Date(parts[0], parts[1] - 1, parts[2]);
     }
 
-    // Populate Salary Grade Dropdown (1-37)
     const gradeSelect = document.getElementById("salary-grade");
     for (let g = 1; g <= 37; g++) {
         let opt = document.createElement("option");
@@ -273,22 +402,19 @@
         const apptDate = parseLocalDate(startDateStr);
         const baseData = pefBaseSchedule[grade];
 
-        // Determine Advance Cycle (Oct 2 - Apr 1 -> April Cycle; Apr 2 - Oct 1 -> October Cycle)
         const apptMonth = apptDate.getMonth() + 1;
         const apptDay = apptDate.getDate();
-        let cycleMonth = 4; // Default April
+        let cycleMonth = 4;
         if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
-            cycleMonth = 10; // October cycle
+            cycleMonth = 10;
         }
 
         let events = [];
 
-        // Track base scale values
         let currentHiring = baseData.hiring;
         let currentAdv = baseData.adv;
         let currentJob = baseData.job;
 
-        // Apply contract raises that occurred STRICTLY BEFORE appointment date to the schedule
         contractIncreases.forEach(inc => {
             let incDate = parseLocalDate(inc.date);
             if (incDate < apptDate) {
@@ -298,7 +424,6 @@
             }
         });
 
-        // Set actual initial salary (uses custom input if provided, otherwise schedule hiring rate)
         let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentHiring;
         let currentStep = 0;
 
@@ -310,10 +435,8 @@
             badgeClass: "event-initial"
         });
 
-        // Generate dynamic timeline from appointment date forward
         let timelineEvents = [];
 
-        // Add contract raises that occur ON or AFTER appointment date
         contractIncreases.forEach(inc => {
             let incDate = parseLocalDate(inc.date);
             if (incDate >= apptDate) {
@@ -326,10 +449,8 @@
             }
         });
 
-        // Calculate first step year based on PEF October-April cutoffs
         let startYear = apptDate.getFullYear();
-        let firstStepYear = (cycleMonth === 4 && (apptMonth > 4 || (apptMonth === 4 && apptDay >= 2))) ? startYear + 1 : startYear + 1;
-        if (apptMonth < 10 && cycleMonth === 10) firstStepYear = startYear; // Oct cycle same year if appointed before Oct
+        let firstStepYear = startYear + 1;
 
         for (let stepNum = 1; stepNum <= 7; stepNum++) {
             let stepYear = firstStepYear + (stepNum - 1);
@@ -345,7 +466,6 @@
             }
         }
 
-        // Sort events chronologically (Contract increases apply FIRST on the same day)
         timelineEvents.sort((a, b) => {
             let diff = parseLocalDate(a.date) - parseLocalDate(b.date);
             if (diff === 0) {
@@ -354,14 +474,12 @@
             return diff;
         });
 
-        // Calculate progression timeline
         timelineEvents.forEach(e => {
             if (e.type === "CONTRACT") {
                 currentHiring = Math.round(currentHiring * (1 + e.pct));
                 currentAdv = Math.round(currentAdv * (1 + e.pct));
                 currentJob = Math.round(currentJob * (1 + e.pct));
                 
-                // Contract increase updates personal base salary
                 currentSalary = Math.round(currentSalary * (1 + e.pct));
 
                 events.push({
@@ -391,7 +509,6 @@
             }
         });
 
-        // Render Table Rows
         const tableBody = document.querySelector("#results-table tbody");
         tableBody.innerHTML = "";
 
