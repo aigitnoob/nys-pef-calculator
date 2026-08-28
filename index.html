@@ -291,7 +291,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    <p class="note" id="results-note">* Note: Steps and schedule rates update based on active unit agreements and continuous state service thresholds.</p>
+    <p class="note" id="results-note">* Note: Longevity pay for M/C applies strictly to Grade 17 and below per Budget Bulletin D-1155.</p>
   </div>
 </div>
 
@@ -359,8 +359,122 @@
     { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
-  // Data Set: M/C Schedules 2026-2030
+  // Ingested Data Set: M/C Schedules (2020-2026)
   const mcSchedules = {
+    "2020-04-01": {
+      name: "2020 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 27760, job: 35488 }, "M/C 4": { hiring: 28985, job: 37098 },
+        "M/C 5": { hiring: 30724, job: 38899 }, "M/C 6": { hiring: 32027, job: 40894 },
+        "M/C 7": { hiring: 33874, job: 43108 }, "M/C 8": { hiring: 35734, job: 45328 },
+        "M/C 9": { hiring: 37775, job: 47741 }, "M/C 10": { hiring: 39811, job: 50391 },
+        "M/C 11": { hiring: 42226, job: 53187 }, "M/C 12": { hiring: 44455, job: 55977 },
+        "M/C 13": { hiring: 47039, job: 59088 }, "M/C 14": { hiring: 49834, job: 62336 },
+        "M/C 15": { hiring: 52608, job: 65702 }, "M/C 16": { hiring: 55573, job: 69207 },
+        "M/C 17": { hiring: 58727, job: 73025 }, "M/C 18": { hiring: 59038, job: 73259 },
+        "M/C 19": { hiring: 62205, job: 77070 }, "M/C 20": { hiring: 65375, job: 80934 },
+        "M/C 21": { hiring: 68901, job: 85115 }, "M/C 22": { hiring: 72605, job: 89586 },
+        "M/C 23": { hiring: 76326, job: 95361 }, "M1": { hiring: 82383, job: 104135 },
+        "M2": { hiring: 91365, job: 115490 }, "M3": { hiring: 101403, job: 128142 },
+        "M4": { hiring: 112155, job: 141538 }, "M5": { hiring: 124534, job: 157338 },
+        "M6": { hiring: 137883, job: 173431 }, "M7": { hiring: 151984, job: 188231 }
+      }
+    },
+    "2021-03-25": {
+      name: "2021 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 28315, job: 36198 }, "M/C 4": { hiring: 29565, job: 37840 },
+        "M/C 5": { hiring: 31338, job: 39677 }, "M/C 6": { hiring: 32668, job: 41712 },
+        "M/C 7": { hiring: 34551, job: 43970 }, "M/C 8": { hiring: 36449, job: 46235 },
+        "M/C 9": { hiring: 38531, job: 48696 }, "M/C 10": { hiring: 40607, job: 51399 },
+        "M/C 11": { hiring: 43071, job: 54251 }, "M/C 12": { hiring: 45344, job: 57097 },
+        "M/C 13": { hiring: 47980, job: 60270 }, "M/C 14": { hiring: 50831, job: 63583 },
+        "M/C 15": { hiring: 53660, job: 67016 }, "M/C 16": { hiring: 56684, job: 70591 },
+        "M/C 17": { hiring: 59902, job: 74486 }, "M/C 18": { hiring: 60219, job: 74724 },
+        "M/C 19": { hiring: 63449, job: 78611 }, "M/C 20": { hiring: 66683, job: 82553 },
+        "M/C 21": { hiring: 70279, job: 86817 }, "M/C 22": { hiring: 74057, job: 91378 },
+        "M/C 23": { hiring: 77853, job: 97268 }, "M1": { hiring: 84031, job: 106218 },
+        "M2": { hiring: 93192, job: 117800 }, "M3": { hiring: 103431, job: 130705 },
+        "M4": { hiring: 114398, job: 144369 }, "M5": { hiring: 127025, job: 160485 },
+        "M6": { hiring: 140641, job: 176900 }, "M7": { hiring: 155024, job: 191996 }
+      }
+    },
+    "2022-03-31": {
+      name: "2022 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 28881, job: 36922 }, "M/C 4": { hiring: 30156, job: 38597 },
+        "M/C 5": { hiring: 31965, job: 40471 }, "M/C 6": { hiring: 33321, job: 42546 },
+        "M/C 7": { hiring: 35242, job: 44849 }, "M/C 8": { hiring: 37178, job: 47160 },
+        "M/C 9": { hiring: 39302, job: 49670 }, "M/C 10": { hiring: 41419, job: 52427 },
+        "M/C 11": { hiring: 43932, job: 55336 }, "M/C 12": { hiring: 46251, job: 58239 },
+        "M/C 13": { hiring: 48940, job: 61475 }, "M/C 14": { hiring: 51848, job: 64855 },
+        "M/C 15": { hiring: 54733, job: 68356 }, "M/C 16": { hiring: 57818, job: 72003 },
+        "M/C 17": { hiring: 61100, job: 75976 }, "M/C 18": { hiring: 61423, job: 76218 },
+        "M/C 19": { hiring: 64718, job: 80183 }, "M/C 20": { hiring: 68017, job: 84204 },
+        "M/C 21": { hiring: 71685, job: 88553 }, "M/C 22": { hiring: 75538, job: 93206 },
+        "M/C 23": { hiring: 79410, job: 99213 }, "M1": { hiring: 85712, job: 108342 },
+        "M2": { hiring: 95056, job: 120156 }, "M3": { hiring: 105500, job: 133319 },
+        "M4": { hiring: 116686, job: 147256 }, "M5": { hiring: 129566, job: 163695 },
+        "M6": { hiring: 143454, job: 180438 }, "M7": { hiring: 158124, job: 195836 }
+      }
+    },
+    "2023-04-01": {
+      name: "2023 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 29747, job: 38030 }, "M/C 4": { hiring: 31061, job: 39755 },
+        "M/C 5": { hiring: 32924, job: 41685 }, "M/C 6": { hiring: 34321, job: 43822 },
+        "M/C 7": { hiring: 36299, job: 46194 }, "M/C 8": { hiring: 38293, job: 48575 },
+        "M/C 9": { hiring: 40487, job: 51160 }, "M/C 10": { hiring: 42662, job: 54000 },
+        "M/C 11": { hiring: 45250, job: 56996 }, "M/C 12": { hiring: 47639, job: 59986 },
+        "M/C 13": { hiring: 50408, job: 63319 }, "M/C 14": { hiring: 53403, job: 66801 },
+        "M/C 15": { hiring: 56375, job: 70407 }, "M/C 16": { hiring: 59553, job: 74163 },
+        "M/C 17": { hiring: 62933, job: 78255 }, "M/C 18": { hiring: 63266, job: 78505 },
+        "M/C 19": { hiring: 66660, job: 82588 }, "M/C 20": { hiring: 70058, job: 86730 },
+        "M/C 21": { hiring: 73836, job: 91210 }, "M/C 22": { hiring: 77804, job: 96002 },
+        "M/C 23": { hiring: 81792, job: 102189 }, "M1": { hiring: 88283, job: 111592 },
+        "M2": { hiring: 97908, job: 123761 }, "M3": { hiring: 108665, job: 137319 },
+        "M4": { hiring: 120187, job: 151674 }, "M5": { hiring: 133453, job: 168606 },
+        "M6": { hiring: 147758, job: 185851 }, "M7": { hiring: 162868, job: 201711 }
+      }
+    },
+    "2024-03-28": {
+      name: "2024 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 30639, job: 39171 }, "M/C 4": { hiring: 31993, job: 40948 },
+        "M/C 5": { hiring: 33912, job: 42936 }, "M/C 6": { hiring: 35351, job: 45137 },
+        "M/C 7": { hiring: 37388, job: 47580 }, "M/C 8": { hiring: 39442, job: 50032 },
+        "M/C 9": { hiring: 41695, job: 52695 }, "M/C 10": { hiring: 43942, job: 55620 },
+        "M/C 11": { hiring: 46608, job: 58706 }, "M/C 12": { hiring: 49068, job: 61786 },
+        "M/C 13": { hiring: 51920, job: 65219 }, "M/C 14": { hiring: 55005, job: 68805 },
+        "M/C 15": { hiring: 58066, job: 72519 }, "M/C 16": { hiring: 61340, job: 76388 },
+        "M/C 17": { hiring: 64821, job: 80603 }, "M/C 18": { hiring: 65164, job: 80860 },
+        "M/C 19": { hiring: 68660, job: 85066 }, "M/C 20": { hiring: 72160, job: 89332 },
+        "M/C 21": { hiring: 76051, job: 93946 }, "M/C 22": { hiring: 80138, job: 98882 },
+        "M/C 23": { hiring: 84246, job: 105255 }, "M1": { hiring: 90931, job: 114940 },
+        "M2": { hiring: 100845, job: 127474 }, "M3": { hiring: 111925, job: 141439 },
+        "M4": { hiring: 123793, job: 156224 }, "M5": { hiring: 137457, job: 173664 },
+        "M6": { hiring: 152191, job: 191427 }, "M7": { hiring: 167754, job: 207762 }
+      }
+    },
+    "2025-03-27": {
+      name: "2025 M/C Salary Schedule",
+      grades: {
+        "M/C 3": { hiring: 31558, job: 40346 }, "M/C 4": { hiring: 32953, job: 42176 },
+        "M/C 5": { hiring: 34929, job: 44224 }, "M/C 6": { hiring: 36412, job: 46491 },
+        "M/C 7": { hiring: 38510, job: 49007 }, "M/C 8": { hiring: 40625, job: 51533 },
+        "M/C 9": { hiring: 42946, job: 54276 }, "M/C 10": { hiring: 45260, job: 57289 },
+        "M/C 11": { hiring: 48006, job: 60467 }, "M/C 12": { hiring: 50540, job: 63640 },
+        "M/C 13": { hiring: 53478, job: 67176 }, "M/C 14": { hiring: 56655, job: 70869 },
+        "M/C 15": { hiring: 59808, job: 74695 }, "M/C 16": { hiring: 63180, job: 78680 },
+        "M/C 17": { hiring: 66766, job: 83021 }, "M/C 18": { hiring: 67119, job: 83286 },
+        "M/C 19": { hiring: 70720, job: 87618 }, "M/C 20": { hiring: 74325, job: 92012 },
+        "M/C 21": { hiring: 78333, job: 96764 }, "M/C 22": { hiring: 82542, job: 101848 },
+        "M/C 23": { hiring: 86773, job: 108413 }, "M1": { hiring: 93659, job: 118388 },
+        "M2": { hiring: 103870, job: 131298 }, "M3": { hiring: 115283, job: 145682 },
+        "M4": { hiring: 127507, job: 160911 }, "M5": { hiring: 141581, job: 178874 },
+        "M6": { hiring: 156757, job: 197170 }, "M7": { hiring: 172787, job: 213995 }
+      }
+    },
     "2026-03-26": {
       name: "2026 M/C Salary Schedule",
       grades: {
@@ -377,78 +491,6 @@
         "M/C 23": { hiring: 90678, job: 113292 }, "M1": { hiring: 97874, job: 123715 },
         "M2": { hiring: 108544, job: 137206 }, "M3": { hiring: 120471, job: 152238 },
         "M4": { hiring: 133245, job: 168152 }
-      }
-    },
-    "2027-03-25": {
-      name: "2027 M/C Schedule Increase",
-      grades: {
-        "M/C 3": { hiring: 34297, job: 43848 }, "M/C 4": { hiring: 35813, job: 45837 },
-        "M/C 5": { hiring: 37961, job: 48063 }, "M/C 6": { hiring: 39573, job: 50526 },
-        "M/C 7": { hiring: 41853, job: 53260 }, "M/C 8": { hiring: 44151, job: 56006 },
-        "M/C 9": { hiring: 46674, job: 58987 }, "M/C 10": { hiring: 49189, job: 62262 },
-        "M/C 11": { hiring: 52173, job: 65716 }, "M/C 12": { hiring: 54927, job: 69164 },
-        "M/C 13": { hiring: 58120, job: 73007 }, "M/C 14": { hiring: 61572, job: 77020 },
-        "M/C 15": { hiring: 64999, job: 81178 }, "M/C 16": { hiring: 68664, job: 85510 },
-        "M/C 17": { hiring: 72561, job: 90227 }, "M/C 18": { hiring: 72945, job: 90515 },
-        "M/C 19": { hiring: 76858, job: 95223 }, "M/C 20": { hiring: 80777, job: 99999 },
-        "M/C 21": { hiring: 85132, job: 105163 }, "M/C 22": { hiring: 89706, job: 110688 },
-        "M/C 23": { hiring: 94305, job: 117824 }, "M1": { hiring: 101789, job: 128664 },
-        "M2": { hiring: 112886, job: 142694 }, "M3": { hiring: 125290, job: 158328 },
-        "M4": { hiring: 138575, job: 174878 }
-      }
-    },
-    "2028-04-06": {
-      name: "2028 M/C Schedule Increase",
-      grades: {
-        "M/C 3": { hiring: 35497, job: 45383 }, "M/C 4": { hiring: 37066, job: 47441 },
-        "M/C 5": { hiring: 39290, job: 49745 }, "M/C 6": { hiring: 40958, job: 52294 },
-        "M/C 7": { hiring: 43318, job: 55124 }, "M/C 8": { hiring: 45696, job: 57966 },
-        "M/C 9": { hiring: 48308, job: 61052 }, "M/C 10": { hiring: 50911, job: 64441 },
-        "M/C 11": { hiring: 53999, job: 68016 }, "M/C 12": { hiring: 56849, job: 71585 },
-        "M/C 13": { hiring: 60154, job: 75562 }, "M/C 14": { hiring: 63727, job: 79716 },
-        "M/C 15": { hiring: 67274, job: 84019 }, "M/C 16": { hiring: 71067, job: 88503 },
-        "M/C 17": { hiring: 75101, job: 93385 }, "M/C 18": { hiring: 75498, job: 93683 },
-        "M/C 19": { hiring: 79548, job: 98556 }, "M/C 20": { hiring: 83604, job: 103499 },
-        "M/C 21": { hiring: 88112, job: 108844 }, "M/C 22": { hiring: 92846, job: 114562 },
-        "M/C 23": { hiring: 97606, job: 121948 }, "M1": { hiring: 105352, job: 133167 },
-        "M2": { hiring: 116837, job: 147688 }, "M3": { hiring: 129675, job: 163869 },
-        "M4": { hiring: 143425, job: 180999 }
-      }
-    },
-    "2029-04-05": {
-      name: "2029 M/C Schedule Increase",
-      grades: {
-        "M/C 3": { hiring: 36562, job: 46744 }, "M/C 4": { hiring: 38178, job: 48864 },
-        "M/C 5": { hiring: 40469, job: 51237 }, "M/C 6": { hiring: 42187, job: 53863 },
-        "M/C 7": { hiring: 44618, job: 56778 }, "M/C 8": { hiring: 47067, job: 59705 },
-        "M/C 9": { hiring: 49757, job: 62884 }, "M/C 10": { hiring: 52438, job: 66374 },
-        "M/C 11": { hiring: 55619, job: 70056 }, "M/C 12": { hiring: 58554, job: 73733 },
-        "M/C 13": { hiring: 61959, job: 77829 }, "M/C 14": { hiring: 65639, job: 82107 },
-        "M/C 15": { hiring: 69292, job: 86540 }, "M/C 16": { hiring: 73199, job: 91158 },
-        "M/C 17": { hiring: 77354, job: 96187 }, "M/C 18": { hiring: 77763, job: 96493 },
-        "M/C 19": { hiring: 81934, job: 101513 }, "M/C 20": { hiring: 86112, job: 106604 },
-        "M/C 21": { hiring: 90755, job: 112109 }, "M/C 22": { hiring: 95631, job: 117999 },
-        "M/C 23": { hiring: 100534, job: 125606 }, "M1": { hiring: 108513, job: 137162 },
-        "M2": { hiring: 120342, job: 152119 }, "M3": { hiring: 133565, job: 168785 },
-        "M4": { hiring: 147728, job: 186429 }
-      }
-    },
-    "2030-04-04": {
-      name: "2030 M/C Schedule Increase",
-      grades: {
-        "M/C 3": { hiring: 37659, job: 48146 }, "M/C 4": { hiring: 39323, job: 50330 },
-        "M/C 5": { hiring: 41683, job: 52774 }, "M/C 6": { hiring: 43453, job: 55479 },
-        "M/C 7": { hiring: 45957, job: 58481 }, "M/C 8": { hiring: 48479, job: 61496 },
-        "M/C 9": { hiring: 51250, job: 64771 }, "M/C 10": { hiring: 54011, job: 68365 },
-        "M/C 11": { hiring: 57288, job: 72158 }, "M/C 12": { hiring: 60311, job: 75945 },
-        "M/C 13": { hiring: 63818, job: 80164 }, "M/C 14": { hiring: 67608, job: 84570 },
-        "M/C 15": { hiring: 71371, job: 89136 }, "M/C 16": { hiring: 75395, job: 93893 },
-        "M/C 17": { hiring: 79675, job: 99073 }, "M/C 18": { hiring: 80096, job: 99388 },
-        "M/C 19": { hiring: 84392, job: 104558 }, "M/C 20": { hiring: 88695, job: 109802 },
-        "M/C 21": { hiring: 93478, job: 115472 }, "M/C 22": { hiring: 98500, job: 121539 },
-        "M/C 23": { hiring: 103550, job: 129374 }, "M1": { hiring: 111768, job: 141277 },
-        "M2": { hiring: 123952, job: 156683 }, "M3": { hiring: 137572, job: 173849 },
-        "M4": { hiring: 152160, job: 192022 }
       }
     }
   };
@@ -471,7 +513,7 @@
         "M/C 3", "M/C 4", "M/C 5", "M/C 6", "M/C 7", "M/C 8", "M/C 9", "M/C 10",
         "M/C 11", "M/C 12", "M/C 13", "M/C 14", "M/C 15", "M/C 16", "M/C 17",
         "M/C 18", "M/C 19", "M/C 20", "M/C 21", "M/C 22", "M/C 23",
-        "M1", "M2", "M3", "M4"
+        "M1", "M2", "M3", "M4", "M5", "M6", "M7"
       ];
       mcGrades.forEach(g => {
         let opt = document.createElement("option");
@@ -500,7 +542,7 @@
       const gNum = parseInt(gradeStr.replace("M/C ", ""), 10);
       return !isNaN(gNum) && gNum <= 17;
     }
-    return false; // M1, M2, M3, M4, etc.
+    return false; // M1 through M7/M8
   }
 
   function calculateSalary() {
@@ -693,7 +735,6 @@
     const apptDate = parseLocalDate(startDateStr);
     let displayEvents = [];
 
-    // Find starting baseline schedule
     let sortedScheduleDates = Object.keys(mcSchedules).sort((a, b) => parseLocalDate(a) - parseLocalDate(b));
     let initialScheduleKey = sortedScheduleDates[0];
     
@@ -705,8 +746,6 @@
 
     let currentGradeData = mcSchedules[initialScheduleKey].grades[grade];
     let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentGradeData.hiring;
-    
-    // Check longevity eligibility (Grade 17 and below)
     let initialLongevity = isMcLongevityEligible(grade) ? getLongevityPay(priorService, 0) : 0;
 
     displayEvents.push({
@@ -720,12 +759,13 @@
       badgeClass: "event-initial"
     });
 
-    // Process future schedule date changes
     sortedScheduleDates.forEach(dateStr => {
       let scheduleDate = parseLocalDate(dateStr);
       if (scheduleDate > apptDate) {
         let sched = mcSchedules[dateStr];
         let gradeInfo = sched.grades[grade];
+        if (!gradeInfo) return;
+
         let elapsedYears = (scheduleDate - apptDate) / (1000 * 60 * 60 * 24 * 365.25);
         let totalServiceYears = priorService + elapsedYears;
 
@@ -733,9 +773,11 @@
         if (prevKeyIndex >= 0) {
           let prevKey = sortedScheduleDates[prevKeyIndex];
           let prevGradeInfo = mcSchedules[prevKey].grades[grade];
-          let pctIncrease = (gradeInfo.hiring - prevGradeInfo.hiring) / prevGradeInfo.hiring;
-          currentSalary = Math.max(currentSalary * (1 + pctIncrease), gradeInfo.hiring);
-          currentSalary = Math.min(currentSalary, gradeInfo.job);
+          if (prevGradeInfo) {
+            let pctIncrease = (gradeInfo.hiring - prevGradeInfo.hiring) / prevGradeInfo.hiring;
+            currentSalary = Math.max(currentSalary * (1 + pctIncrease), gradeInfo.hiring);
+            currentSalary = Math.min(currentSalary, gradeInfo.job);
+          }
         } else {
           currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : gradeInfo.hiring;
         }
@@ -779,7 +821,6 @@
     document.getElementById("results-card").style.display = "block";
   }
 
-  // Initialize dropdown on page load
   updateGradeDropdown();
 </script>
 
