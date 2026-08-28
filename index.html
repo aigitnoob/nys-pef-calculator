@@ -244,6 +244,12 @@
         { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
     ];
 
+    // Helper function to safely parse dates without local timezone shifts
+    function parseLocalDate(dateStr) {
+        const parts = dateStr.split('-');
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
     // Populate Salary Grade Dropdown (1-37)
     const gradeSelect = document.getElementById("salary-grade");
     for (let g = 1; g <= 37; g++) {
@@ -259,12 +265,12 @@
         const startDateStr = document.getElementById("start-date").value;
         if (!startDateStr) return;
 
-        const apptDate = new Date(startDateStr);
+        const apptDate = parseLocalDate(startDateStr);
         const baseData = pefBaseSchedule[grade];
 
         // Determine Advance Cycle (Oct 2 - Apr 1 -> April Cycle; Apr 2 - Oct 1 -> October Cycle)
-        const apptMonth = apptDate.getUTCMonth() + 1;
-        const apptDay = apptDate.getUTCDate();
+        const apptMonth = apptDate.getMonth() + 1;
+        const apptDay = apptDate.getDate();
         let cycleMonth = 4; // Default April
         if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
             cycleMonth = 10; // October cycle
@@ -280,9 +286,9 @@
         let currentSalary = currentHiring;
         let currentStep = 0;
 
-        // Apply contract raises that occurred PRIOR to appointment date (strictly before)
+        // Apply contract raises that occurred STRICTLY BEFORE appointment date
         contractIncreases.forEach(inc => {
-            let incDate = new Date(inc.date);
+            let incDate = parseLocalDate(inc.date);
             if (incDate < apptDate) {
                 currentHiring = Math.round(currentHiring * (1 + inc.pct));
                 currentAdv = Math.round(currentAdv * (1 + inc.pct));
@@ -304,7 +310,8 @@
 
         // Add contract raises that occur ON or AFTER appointment date
         contractIncreases.forEach(inc => {
-            if (new Date(inc.date) >= apptDate) {
+            let incDate = parseLocalDate(inc.date);
+            if (incDate >= apptDate) {
                 timelineEvents.push({
                     date: inc.date,
                     type: "CONTRACT",
@@ -315,12 +322,13 @@
         });
 
         // Add Step Advance dates up to Step 7
-        let startYear = apptDate.getUTCFullYear();
+        let startYear = apptDate.getFullYear();
         for (let stepNum = 1; stepNum <= 7; stepNum++) {
             let stepYear = startYear + stepNum;
             let monthStr = cycleMonth === 4 ? "04" : "10";
             let stepDateStr = `${stepYear}-${monthStr}-01`;
-            if (new Date(stepDateStr) > apptDate) {
+            let stepDate = parseLocalDate(stepDateStr);
+            if (stepDate > apptDate) {
                 timelineEvents.push({
                     date: stepDateStr,
                     type: "STEP",
@@ -331,7 +339,7 @@
 
         // Sort events chronologically (Contract increases take priority if on the same day)
         timelineEvents.sort((a, b) => {
-            let diff = new Date(a.date) - new Date(b.date);
+            let diff = parseLocalDate(a.date) - parseLocalDate(b.date);
             if (diff === 0) {
                 return a.type === "CONTRACT" ? -1 : 1;
             }
