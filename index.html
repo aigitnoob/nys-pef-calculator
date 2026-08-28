@@ -719,14 +719,16 @@
         let elapsedYears = (scheduleDate - apptDate) / (1000 * 60 * 60 * 24 * 365.25);
         let totalServiceYears = priorService + elapsedYears;
 
-        // Scale current salary proportionately or adjust to schedule hiring floor
         let prevKeyIndex = sortedScheduleDates.indexOf(dateStr) - 1;
-        let prevKey = sortedScheduleDates[prevKeyIndex];
-        let prevGradeInfo = mcSchedules[prevKey].grades[grade];
-
-        let pctIncrease = (gradeInfo.hiring - prevGradeInfo.hiring) / prevGradeInfo.hiring;
-        currentSalary = Math.max(currentSalary * (1 + pctIncrease), gradeInfo.hiring);
-        currentSalary = Math.min(currentSalary, gradeInfo.job);
+        if (prevKeyIndex >= 0) {
+          let prevKey = sortedScheduleDates[prevKeyIndex];
+          let prevGradeInfo = mcSchedules[prevKey].grades[grade];
+          let pctIncrease = (gradeInfo.hiring - prevGradeInfo.hiring) / prevGradeInfo.hiring;
+          currentSalary = Math.max(currentSalary * (1 + pctIncrease), gradeInfo.hiring);
+          currentSalary = Math.min(currentSalary, gradeInfo.job);
+        } else {
+          currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : gradeInfo.hiring;
+        }
 
         let longevityPay = getLongevityPay(totalServiceYears, 0);
 
