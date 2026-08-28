@@ -9,16 +9,23 @@
 <body class="bg-slate-50 text-slate-800 p-6 font-sans">
   <div class="max-w-2xl mx-auto bg-white p-6 rounded-xl shadow-md border border-slate-200">
     <h1 class="text-2xl font-bold mb-2 text-slate-900">NYS PEF Salary Calculator</h1>
-    <p class="text-sm text-slate-600 mb-6">Estimate your step increment schedule and 2026–2031 PEF contract salary projections.</p>
+    <p class="text-sm text-slate-600 mb-6">Select your Grade and Hire Date to project your future earnings under the 2026–2031 PEF Contract.</p>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div>
         <label class="block text-sm font-semibold mb-1">Hire Date</label>
         <input type="date" id="hireDate" class="w-full border rounded p-2 text-sm border-slate-300">
       </div>
       <div>
-        <label class="block text-sm font-semibold mb-1">Starting Base Salary ($)</label>
-        <input type="number" id="baseSalary" placeholder="e.g. 62694" class="w-full border rounded p-2 text-sm border-slate-300">
+        <label class="block text-sm font-semibold mb-1">Salary Grade</label>
+        <select id="salaryGrade" onchange="updateBaseSalary()" class="w-full border rounded p-2 text-sm border-slate-300 bg-white">
+          <option value="">-- Select Grade --</option>
+          <!-- JavaScript will populate grades 1-37 here -->
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-semibold mb-1">Starting Salary ($)</label>
+        <input type="number" id="baseSalary" placeholder="Auto-fills from Grade" class="w-full border rounded p-2 text-sm border-slate-300 bg-slate-50">
       </div>
     </div>
 
@@ -40,20 +47,51 @@
   </div>
 
   <script>
+    // 2026 PEF Salary Schedule (April 2026 Hiring Rates, Grades 1-37)
+    const pefHiringRates = {
+      1: 28815, 2: 29908, 3: 31372, 4: 32780, 5: 34333,
+      6: 36173, 7: 38204, 8: 40307, 9: 42552, 10: 44965,
+      11: 47541, 12: 50209, 13: 53132, 14: 56183, 15: 59363,
+      16: 62694, 17: 66212, 18: 69964, 19: 73755, 20: 77532,
+      21: 81642, 22: 86031, 23: 90582, 24: 95406, 25: 100671,
+      26: 105973, 27: 111708, 28: 117592, 29: 123754, 30: 130222,
+      31: 137163, 32: 144455, 33: 152313, 34: 160426, 35: 168742,
+      36: 177224, 37: 186525
+    };
+
+    // Populate the grade drop-down on page load
+    const selectElem = document.getElementById('salaryGrade');
+    for (let g = 1; g <= 37; g++) {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = `Grade ${g}`;
+      selectElem.appendChild(opt);
+    }
+
+    // Auto-fill salary when a grade is chosen
+    function updateBaseSalary() {
+      const selectedGrade = document.getElementById('salaryGrade').value;
+      const salaryInput = document.getElementById('baseSalary');
+      if (selectedGrade && pefHiringRates[selectedGrade]) {
+        salaryInput.value = pefHiringRates[selectedGrade];
+      }
+    }
+
+    // Run the projection logic
     function calculateSalary() {
       const dateVal = document.getElementById('hireDate').value;
       const baseSalaryVal = parseFloat(document.getElementById('baseSalary').value);
 
       if (!dateVal || isNaN(baseSalaryVal)) {
-        alert('Please fill out both your Hire Date and Starting Base Salary.');
+        alert('Please select your Hire Date and Grade/Starting Salary.');
         return;
       }
 
       const hireDate = new Date(dateVal + 'T00:00:00');
-      const month = hireDate.getMonth() + 1; // 1-12
+      const month = hireDate.getMonth() + 1;
       const day = hireDate.getDate();
 
-      // Rule: Hired Oct 2 - Apr 1 -> April Increment | Hired Apr 2 - Oct 1 -> October Increment
+      // Determine step cycle: Oct 2 - Apr 1 -> April | Apr 2 - Oct 1 -> October
       let incrementMonth = "October";
       if ((month === 10 && day >= 2) || month > 10 || month < 4 || (month === 4 && day === 1)) {
         incrementMonth = "April";
