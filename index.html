@@ -50,7 +50,7 @@
     }
 
     .container {
-      max-width: 950px;
+      max-width: 1000px;
       margin: 0 auto;
     }
 
@@ -128,7 +128,7 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 1rem;
     }
 
@@ -188,7 +188,7 @@
     .amount {
       text-align: right;
       font-family: monospace;
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
     }
 
@@ -243,6 +243,11 @@
         </div>
 
         <div class="form-group">
+          <label for="prior-service">Prior NYS Service (Years)</label>
+          <input type="number" id="prior-service" min="0" max="40" value="0" placeholder="e.g. 5">
+        </div>
+
+        <div class="form-group">
           <label for="location-pay">Location Pay Region</label>
           <select id="location-pay">
             <option value="0">None ($0)</option>
@@ -272,12 +277,13 @@
           <th>Step Status</th>
           <th style="text-align:right;">Base Salary</th>
           <th style="text-align:right;">Location Pay</th>
+          <th style="text-align:right;">Longevity Pay</th>
           <th style="text-align:right;">Total Salary</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-    <p class="note">* Note: Steps advance annually provided the minimum service period (13 pay periods / 6 months) is met prior to the performance cycle date (April 1 or October 1).</p>
+    <p class="note">* Note: Steps advance annually provided the minimum service period (13 pay periods / 6 months) is met prior to the performance cycle date (April 1 or October 1). Longevity lump sums (LLS) evaluate continuous NYS service milestones (12, 17, and 22 years) or years at Job Rate (5+ and 10+ years).</p>
   </div>
 </div>
 
@@ -361,11 +367,23 @@
     return new Date(parts[0], parts[1] - 1, parts[2]);
   }
 
+  function getLongevityPay(totalYearsService, yearsAtJobRate) {
+    if (totalYearsService >= 22) {
+      return 4500;
+    } else if (totalYearsService >= 17 || yearsAtJobRate >= 10) {
+      return 3000;
+    } else if (totalYearsService >= 12 || yearsAtJobRate >= 5) {
+      return 1500;
+    }
+    return 0;
+  }
+
   function calculateSalary() {
     const grade = parseInt(document.getElementById("salary-grade").value);
     const startDateStr = document.getElementById("start-date").value;
     const customSalaryInput = document.getElementById("custom-salary").value;
     const locationPay = parseFloat(document.getElementById("location-pay").value) || 0;
+    const priorService = parseFloat(document.getElementById("prior-service").value) || 0;
     if (!startDateStr) return;
 
     const apptDate = parseLocalDate(startDateStr);
@@ -393,9 +411,11 @@
     });
 
     let currentStep = 0;
+    let jobRateDate = null;
     let displayEvents = [];
 
     let currentSalary = rawCustomSalary !== null ? Math.round(rawCustomSalary) : Math.round(rawHiring);
+    let initialLongevity = getLongevityPay(priorService, 0);
 
     displayEvents.push({
       date: startDateStr,
@@ -403,7 +423,8 @@
       step: "Step 0",
       salary: currentSalary,
       locPay: locationPay,
-      totalSalary: currentSalary + locationPay,
+      longPay: initialLongevity,
+      totalSalary: currentSalary + locationPay + initialLongevity,
       badgeClass: "event-initial"
     });
 
@@ -467,7 +488,10 @@
 
     sortedDates.forEach(dateStr => {
       let group = groupedEvents[dateStr];
-      
+      let eventDate = parseLocalDate(dateStr);
+      let elapsedYears = (eventDate - apptDate) / (1000 * 60 * 60 * 24 * 365.25);
+      let totalServiceYears = priorService + elapsedYears;
+
       let contractEv = group.find(e => e.type === "CONTRACT");
       if (contractEv) {
         rawHiring *= (1 + contractEv.pct);
@@ -493,13 +517,17 @@
           }
         }
 
+        let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
+        let longevityPay = getLongevityPay(totalServiceYears, yearsAtJobRate);
+
         displayEvents.push({
           date: dateStr,
           desc: contractEv.name,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
           locPay: locationPay,
-          totalSalary: currentSalary + locationPay,
+          longPay: longevityPay,
+          totalSalary: currentSalary + locationPay + longevityPay,
           badgeClass: "event-contract"
         });
       }
@@ -507,6 +535,10 @@
       let stepEv = group.find(e => e.type === "STEP");
       if (stepEv && currentStep < 7) {
         currentStep++;
+        if (currentStep === 7 && !jobRateDate) {
+          jobRateDate = parseLocalDate(dateStr);
+        }
+
         let curHiring = Math.round(rawHiring);
         let curAdv = Math.round(rawAdv);
         let curJobAdv = Math.round(rawJobAdv);
@@ -526,13 +558,17 @@
           }
         }
 
+        let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
+        let longevityPay = getLongevityPay(totalServiceYears, yearsAtJobRate);
+
         displayEvents.push({
           date: dateStr,
           desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
           locPay: locationPay,
-          totalSalary: currentSalary + locationPay,
+          longPay: longevityPay,
+          totalSalary: currentSalary + locationPay + longevityPay,
           badgeClass: "event-step"
         });
       }
@@ -549,6 +585,7 @@
         <td>${ev.step}</td>
         <td class="amount">$${ev.salary.toLocaleString()}</td>
         <td class="amount">$${ev.locPay.toLocaleString()}</td>
+        <td class="amount">$${ev.longPay.toLocaleString()}</td>
         <td class="amount">$${ev.totalSalary.toLocaleString()}</td>
       `;
       tableBody.appendChild(row);
