@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NYS PEF Salary & Step Projection Calculator</title>
+  <title>NYS PEF Salary Progression Calculator</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 p-6 font-sans">
   <div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow-md border border-slate-200">
     <h1 class="text-2xl font-bold mb-1 text-slate-900">NYS PEF Salary Progression Calculator</h1>
-    <p class="text-sm text-slate-600 mb-6">Projects Performance Advances (Steps 1–7), General Contract Raises, and Retro Dates.</p>
+    <p class="text-sm text-slate-600 mb-6">Projects Performance Advances (Steps 1–7) and 2026–2030 General Contract Increases.</p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div>
@@ -19,24 +19,24 @@
       <div>
         <label class="block text-sm font-semibold mb-1">Salary Grade</label>
         <select id="salaryGrade" class="w-full border rounded p-2 text-sm border-slate-300 bg-white">
-          <!-- JS will populate options -->
+          <!-- Populated by JS -->
         </select>
       </div>
     </div>
 
-    <button onclick="calculateProjection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition">Calculate Future Progression</button>
+    <button onclick="calculateProjection()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition">Calculate Salary Timeline</button>
 
     <div id="results" class="mt-6 hidden">
-      <div id="summaryCard" class="p-4 bg-blue-50 text-blue-900 rounded-lg text-sm mb-6 space-y-1"></div>
+      <div id="summaryCard" class="p-4 bg-blue-50 text-blue-900 rounded-lg text-sm mb-6 space-y-1 border border-blue-200"></div>
       
       <h2 class="text-base font-bold text-slate-900 mb-2">Earnings & Step Timeline</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-left text-sm border-collapse">
           <thead>
             <tr class="border-b border-slate-300 text-slate-600 bg-slate-100">
-              <th class="p-2">Effective Date</th>
-              <th class="p-2">Event Type</th>
-              <th class="p-2">Step #</th>
+              <th class="p-2">Date</th>
+              <th class="p-2">Event Description</th>
+              <th class="p-2">Step</th>
               <th class="p-2">Base Salary</th>
             </tr>
           </thead>
@@ -47,16 +47,129 @@
   </div>
 
   <script>
-    // April 2024 Base PEF Salary Schedule (Hiring Rate & Job Rate)
-    const baseSchedule2024 = {
-      1:  { hire: 26771, job: 34540 }, 2:  { hire: 27786, job: 35942 },
-      3:  { hire: 29147, job: 37692 }, 4:  { hire: 30454, job: 39450 },
-      5:  { hire: 31898, job: 41328 }, 6:  { hire: 33607, job: 43521 },
-      7:  { hire: 35494, job: 45864 }, 8:  { hire: 37448, job: 48294 },
-      9:  { hire: 39534, job: 50884 }, 10: { hire: 41776, job: 53708 },
-      11: { hire: 44169, job: 56743 }, 12: { hire: 46648, job: 59757 },
-      13: { hire: 49363, job: 63169 }, 14: { hire: 52198, job: 66634 },
-      15: { hire: 55152, job: 70317 }, 16: { hire: 58247, job: 74135 },
-      17: { hire: 61516, job: 78307 }, 18: { hire: 65001, job: 82655 },
-      19: { hire: 68523, job: 87031 }, 20: { hire: 72032, job: 91383 },
-      21: {
+    // Official PEF Salary Schedules (Grades 1-37)
+    const pefSchedule2026 = {
+      1:  { hire: 28815, job: 37177, adv: 1196 },
+      2:  { hire: 29908, job: 38689, adv: 1254 },
+      3:  { hire: 31372, job: 40571, adv: 1315 },
+      4:  { hire: 32780, job: 42466, adv: 1379 },
+      5:  { hire: 34333, job: 44480, adv: 1452 },
+      6:  { hire: 36173, job: 46843, adv: 1523 },
+      7:  { hire: 38204, job: 49364, adv: 1585 },
+      8:  { hire: 40307, job: 51981, adv: 1642 },
+      9:  { hire: 42552, job: 54773, adv: 1701 },
+      10: { hire: 44965, job: 57813, adv: 1777 },
+      11: { hire: 47541, job: 61076, adv: 1892 },
+      12: { hire: 50209, job: 64321, adv: 1957 },
+      13: { hire: 53132, job: 67990, adv: 2035 },
+      14: { hire: 56183, job: 71719, adv: 2174 },
+      15: { hire: 59363, job: 75686, adv: 2254 },
+      16: { hire: 62694, job: 79795, adv: 2341 },
+      17: { hire: 66212, job: 84286, adv: 2452 },
+      18: { hire: 69964, job: 88970, adv: 2403 },
+      19: { hire: 73755, job: 93682, adv: 2502 },
+      20: { hire: 77532, job: 98354, adv: 2607 },
+      21: { hire: 81642, job: 103513, adv: 2721 },
+      22: { hire: 86031, job: 108921, adv: 2835 },
+      23: { hire: 90582, job: 114585, adv: 2953 },
+      24: { hire: 95406, job: 120439, adv: 3066 },
+      25: { hire: 100671, job: 126875, adv: 3197 },
+      26: { hire: 105973, job: 130626, adv: 3327 },
+      27: { hire: 111708, job: 137590, adv: 3503 },
+      28: { hire: 117592, job: 144422, adv: 3638 },
+      29: { hire: 123754, job: 151566, adv: 3778 },
+      30: { hire: 130222, job: 159005, adv: 3918 },
+      31: { hire: 137163, job: 166974, adv: 4064 },
+      32: { hire: 144455, job: 175226, adv: 4201 },
+      33: { hire: 152313, job: 184049, adv: 4340 },
+      34: { hire: 160426, job: 193216, adv: 4490 },
+      35: { hire: 168742, job: 202545, adv: 4634 },
+      36: { hire: 177224, job: 212141, adv: 4794 },
+      37: { hire: 186525, job: 222485, adv: 4943 }
+    };
+
+    // Populate Grade Dropdown
+    const gradeSelect = document.getElementById('salaryGrade');
+    for (let g = 1; g <= 37; g++) {
+      const opt = document.createElement('option');
+      opt.value = g;
+      opt.textContent = `Grade ${g}`;
+      if (g === 25) opt.selected = true;
+      gradeSelect.appendChild(opt);
+    }
+
+    function calculateProjection() {
+      const hireDateStr = document.getElementById('hireDate').value;
+      const grade = parseInt(document.getElementById('salaryGrade').value);
+
+      if (!hireDateStr || !grade) return;
+
+      const hireDate = new Date(hireDateStr + 'T00:00:00');
+      const month = hireDate.getMonth() + 1;
+      const day = hireDate.getDate();
+
+      // Step cycle determination: Oct 2 - Apr 1 -> October Advances | Apr 2 - Oct 1 -> April Advances
+      const isOctoberCycle = (month === 10 && day >= 2) || month > 10 || month < 4 || (month === 4 && day === 1);
+      const stepMonthName = isOctoberCycle ? "October" : "April";
+
+      const contractRaises = {
+        2026: 0.045,
+        2027: 0.040,
+        2028: 0.035,
+        2029: 0.030,
+        2030: 0.030
+      };
+
+      const baseInfo = pefSchedule2026[grade];
+      let currentHire = baseInfo.hire;
+      let currentAdv = baseInfo.adv;
+      let currentJob = baseInfo.job;
+
+      let currentStep = 1; 
+
+      document.getElementById('summaryCard').innerHTML = `
+        <p><strong>Salary Grade:</strong> ${grade}</p>
+        <p><strong>Advance Cycle:</strong> ${stepMonthName} Performance Advances</p>
+        <p><strong>2026 Base (Step 1):</strong> $${Math.round(currentHire + currentAdv).toLocaleString()}</p>
+      `;
+
+      let html = '';
+
+      for (let year = 2026; year <= 2030; year++) {
+        const raisePercent = contractRaises[year];
+        currentHire *= (1 + raisePercent);
+        currentAdv *= (1 + raisePercent);
+        currentJob *= (1 + raisePercent);
+
+        html += `
+          <tr class="border-b border-slate-100 bg-slate-50">
+            <td class="p-2 font-medium">April ${year}</td>
+            <td class="p-2 text-slate-600">${(raisePercent * 100).toFixed(1)}% General Contract Increase</td>
+            <td class="p-2">Step ${currentStep}</td>
+            <td class="p-2 font-semibold">$${Math.round(currentHire + (currentStep * currentAdv)).toLocaleString()}</td>
+          </tr>
+        `;
+
+        if (currentStep < 7) {
+          currentStep++;
+          const newSalary = Math.round(currentHire + (currentStep * currentAdv));
+          html += `
+            <tr class="border-b border-slate-100">
+              <td class="p-2 font-medium">${stepMonthName} ${year}</td>
+              <td class="p-2 text-blue-700 font-medium">Performance Advance (Step ${currentStep})</td>
+              <td class="p-2">Step ${currentStep}</td>
+              <td class="p-2 font-semibold text-slate-900">$${newSalary.toLocaleString()}</td>
+            </tr>
+          `;
+        }
+      }
+
+      document.getElementById('tableBody').innerHTML = html;
+      document.getElementById('results').classList.remove('hidden');
+    }
+
+    // Run automatically on initial load
+    calculateProjection();
+  </script>
+</body>
+</html>
