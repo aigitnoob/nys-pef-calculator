@@ -163,7 +163,12 @@
 
                 <div class="form-group">
                     <label for="start-date">Appointment Date</label>
-                    <input type="date" id="start-date" value="2024-03-15">
+                    <input type="date" id="start-date" value="2025-03-13">
+                </div>
+
+                <div class="form-group">
+                    <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
+                    <input type="number" id="custom-salary" placeholder="Leave blank for standard scale">
                 </div>
 
                 <button type="button" onclick="calculateSalary()">Calculate Full Progression</button>
@@ -232,9 +237,8 @@
         37: { hiring: 162981, job: 198084, adv: 5015 }
     };
 
-    // Contract General Increase Multipliers across 2023-2031
+    // Contract General Increase Multipliers starting 2024 (2023 rate is already base)
     const contractIncreases = [
-        { date: "2023-03-30", pct: 0.030, name: "2023 General Increase (3.0%)" },
         { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
         { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
         { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
@@ -244,7 +248,7 @@
         { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
     ];
 
-    // Helper function to safely parse dates without local timezone shifts
+    // Helper function to parse local YYYY-MM-DD safely without UTC shifts
     function parseLocalDate(dateStr) {
         const parts = dateStr.split('-');
         return new Date(parts[0], parts[1] - 1, parts[2]);
@@ -263,6 +267,7 @@
     function calculateSalary() {
         const grade = parseInt(document.getElementById("salary-grade").value);
         const startDateStr = document.getElementById("start-date").value;
+        const customSalaryInput = document.getElementById("custom-salary").value;
         if (!startDateStr) return;
 
         const apptDate = parseLocalDate(startDateStr);
@@ -278,34 +283,34 @@
 
         let events = [];
 
-        // Reset working schedule values to pure 2023 base rates
+        // Track base scale values
         let currentHiring = baseData.hiring;
         let currentAdv = baseData.adv;
         let currentJob = baseData.job;
 
-        let currentSalary = currentHiring;
-        let currentStep = 0;
-
-        // Apply contract raises that occurred STRICTLY BEFORE appointment date
+        // Apply contract raises that occurred STRICTLY BEFORE appointment date to the schedule
         contractIncreases.forEach(inc => {
             let incDate = parseLocalDate(inc.date);
             if (incDate < apptDate) {
                 currentHiring = Math.round(currentHiring * (1 + inc.pct));
                 currentAdv = Math.round(currentAdv * (1 + inc.pct));
                 currentJob = Math.round(currentJob * (1 + inc.pct));
-                currentSalary = currentHiring;
             }
         });
 
+        // Set actual initial salary (uses custom input if provided, otherwise schedule hiring rate)
+        let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentHiring;
+        let currentStep = 0;
+
         events.push({
             date: startDateStr,
-            desc: "Initial Appointment (Hiring Rate)",
+            desc: customSalaryInput ? "Initial Appointment (Increased Hiring Rate)" : "Initial Appointment (Hiring Rate)",
             step: "Step 0",
-            salary: currentSalary,
+            salary: Math.round(currentSalary),
             badgeClass: "event-initial"
         });
 
-        // Generate dynamic timeline from appointment date to 2031
+        // Generate dynamic timeline from appointment date forward
         let timelineEvents = [];
 
         // Add contract raises that occur ON or AFTER appointment date
@@ -321,10 +326,13 @@
             }
         });
 
-        // Add Step Advance dates up to Step 7
+        // Calculate first step year based on PEF October-April cutoffs
         let startYear = apptDate.getFullYear();
+        let firstStepYear = (cycleMonth === 4 && (apptMonth > 4 || (apptMonth === 4 && apptDay >= 2))) ? startYear + 1 : startYear + 1;
+        if (apptMonth < 10 && cycleMonth === 10) firstStepYear = startYear; // Oct cycle same year if appointed before Oct
+
         for (let stepNum = 1; stepNum <= 7; stepNum++) {
-            let stepYear = startYear + stepNum;
+            let stepYear = firstStepYear + (stepNum - 1);
             let monthStr = cycleMonth === 4 ? "04" : "10";
             let stepDateStr = `${stepYear}-${monthStr}-01`;
             let stepDate = parseLocalDate(stepDateStr);
@@ -337,7 +345,7 @@
             }
         }
 
-        // Sort events chronologically (Contract increases take priority if on the same day)
+        // Sort events chronologically (Contract increases apply FIRST on the same day)
         timelineEvents.sort((a, b) => {
             let diff = parseLocalDate(a.date) - parseLocalDate(b.date);
             if (diff === 0) {
@@ -353,7 +361,7 @@
                 currentAdv = Math.round(currentAdv * (1 + e.pct));
                 currentJob = Math.round(currentJob * (1 + e.pct));
                 
-                // Contract increase updates current base salary
+                // Contract increase updates personal base salary
                 currentSalary = Math.round(currentSalary * (1 + e.pct));
 
                 events.push({
