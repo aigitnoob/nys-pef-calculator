@@ -3,58 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYS PEF Salary Progression Calculator</title>
+    <title>NYS PEF Salary Calculator & Progression Tool</title>
     <style>
         :root {
-            --primary-color: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
+            --primary: #003366;
+            --primary-light: #1a4d80;
+            --secondary: #d97706;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --accent-bg: #eff6ff;
+            --text: #1e293b;
+            --border: #e2e8f0;
         }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--bg);
+            color: var(--text);
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
+            line-height: 1.5;
         }
 
         .container {
-            width: 100%;
             max-width: 900px;
-            background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            padding: 32px;
-            box-sizing: border-box;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 1rem;
         }
 
         h1 {
-            font-size: 1.75rem;
-            margin-top: 0;
-            margin-bottom: 8px;
-            color: var(--text-main);
+            color: var(--primary);
+            margin-bottom: 0.25rem;
         }
 
-        p.subtitle {
-            color: var(--text-muted);
-            margin-top: 0;
-            margin-bottom: 24px;
+        .subtitle {
+            color: #64748b;
             font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
         }
 
         .form-group {
@@ -64,292 +68,214 @@
 
         label {
             font-weight: 600;
-            font-size: 0.875rem;
-            margin-bottom: 6px;
-            color: var(--text-main);
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+            color: var(--text);
         }
 
-        input, select {
-            padding: 10px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.95rem;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--primary-color);
+        select, input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
         }
 
         button {
-            width: 100%;
-            background-color: var(--primary-color);
+            grid-column: 1 / -1;
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 6px;
+            padding: 0.75rem;
             font-size: 1rem;
             font-weight: 600;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 24px;
+            transition: background 0.2s;
         }
 
         button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .summary-box {
-            background-color: var(--accent-bg);
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 24px;
-        }
-
-        .summary-box h3 {
-            margin: 0 0 8px 0;
-            font-size: 1rem;
-            color: #1e40af;
-        }
-
-        .summary-box p {
-            margin: 4px 0;
-            font-size: 0.95rem;
-            color: #1e3a8a;
+            background-color: var(--primary-light);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: left;
-            margin-top: 16px;
+            margin-top: 1rem;
         }
 
         th, td {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.95rem;
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
         }
 
         th {
             background-color: #f1f5f9;
-            color: var(--text-muted);
-            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.85rem;
             text-transform: uppercase;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
         }
 
-        tr:hover {
-            background-color: #f8fafc;
+        .amount {
+            text-align: right;
+            font-family: monospace;
+            font-size: 1rem;
         }
 
-        .advance-row {
-            color: #0369a1;
-            font-weight: 500;
-        }
-
-        .hidden {
-            display: none;
+        .note {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>NYS PEF Salary Progression Calculator</h1>
-    <p class="subtitle">Calculates performance advances and general contract increases based on official OER salary schedules.</p>
+    <header>
+        <h1>NYS PEF Salary Progression Calculator</h1>
+        <p class="subtitle">PS&T Unit • 2023–2026 Agreement (3% Annual Across-the-Board Increases)</p>
+    </header>
 
-    <div class="form-grid">
-        <div class="form-group">
-            <label for="hireDate">Hire Date</label>
-            <input type="date" id="hireDate" value="2024-03-14">
-        </div>
-        <div class="form-group">
-            <label for="salaryGrade">Salary Grade</label>
-            <select id="salaryGrade">
-                <option value="18">Grade 18</option>
-                <option value="23">Grade 23</option>
-                <option value="24">Grade 24</option>
-                <option value="25" selected>Grade 25</option>
-                <option value="26">Grade 26</option>
-                <option value="27">Grade 27</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="locationPay">Location Pay</label>
-            <select id="locationPay">
-                <option value="0">None (Upstate / Albany)</option>
-                <option value="4150">Downstate ($4,150+)</option>
-                <option value="2150">Mid-Hudson ($2,150+)</option>
-            </select>
-        </div>
+    <div class="card">
+        <form id="calc-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="salary-grade">Salary Grade</label>
+                    <select id="salary-grade">
+                        <!-- Options generated dynamically via JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pay-schedule">Pay Schedule Type</label>
+                    <select id="pay-schedule">
+                        <option value="admin">Administration Cycle</option>
+                        <option value="inst">Institution Cycle</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="current-step">Current Step / Status</label>
+                    <select id="current-step">
+                        <option value="0">Hiring Rate (Step 0)</option>
+                        <option value="1">Step 1</option>
+                        <option value="2">Step 2</option>
+                        <option value="3">Step 3</option>
+                        <option value="4">Step 4</option>
+                        <option value="5">Step 5</option>
+                        <option value="6">Step 6</option>
+                        <option value="7">Job Rate</option>
+                    </select>
+                </div>
+
+                <button type="button" onclick="calculateSalary()">Calculate Earnings & Progression</button>
+            </div>
+        </form>
     </div>
 
-    <button onclick="calculateSalary()">Calculate Salary Timeline</button>
-
-    <div id="results" class="hidden">
-        <div class="summary-box">
-            <h3 id="summaryTitle">Salary Grade Breakdown</h3>
-            <p id="summaryDetails"></p>
-        </div>
-
-        <h3>Earnings & Step Timeline</h3>
-        <table>
+    <div class="card" id="results-card" style="display:none;">
+        <h2>Salary Projection Summary</h2>
+        <table id="results-table">
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Event Description</th>
-                    <th>Step</th>
-                    <th>Base Salary</th>
-                    <th>Total Pay (w/ Location)</th>
+                    <th>Effective Date</th>
+                    <th>Salary Grade</th>
+                    <th>Hiring Rate</th>
+                    <th>Advance Step</th>
+                    <th>Job Rate</th>
                 </tr>
             </thead>
-            <tbody id="timelineBody"></tbody>
+            <tbody>
+                <!-- Projection rows dynamically appended -->
+            </tbody>
         </table>
+        <p class="note">* Note: Effective dates correspond to contract general increases (Admin: March / Inst: April).</p>
     </div>
 </div>
 
 <script>
-// Official NYS PEF Salary Data (March 26, 2026 Schedule)
-const pefData = {
-    18: { hiringRate: 69964, jobRate: 88970, advance: 2403, jobRateAdvance: 4588 },
-    23: { hiringRate: 90582, jobRate: 114585, advance: 2953, jobRateAdvance: 6285 },
-    24: { hiringRate: 95406, jobRate: 120439, advance: 3066, jobRateAdvance: 6637 },
-    25: { hiringRate: 100671, jobRate: 126875, advance: 3197, jobRateAdvance: 7022 },
-    26: { hiringRate: 105973, jobRate: 130626, advance: 3327, jobRateAdvance: 4691 },
-    27: { hiringRate: 111708, jobRate: 137590, advance: 3503, jobRateAdvance: 4864 }
-};
+    // 2023-2026 PS&T Salary Schedule Data
+    const pefSchedules = {
+        2023: {
+            dates: { admin: "March 30, 2023", inst: "April 6, 2023" },
+            grades: {
+                1:  { hiring: 25991, job: 33537, adv: 1079 },
+                6:  { hiring: 32628, job: 42251, adv: 1374 },
+                12: { hiring: 45289, job: 58016, adv: 1765 },
+                18: { hiring: 63108, job: 80248, adv: 2167 },
+                23: { hiring: 81705, job: 103350, adv: 2663 },
+                27: { hiring: 100761, job: 124107, adv: 3159 },
+                31: { hiring: 123721, job: 150612, adv: 3666 },
+                37: { hiring: 168247, job: 200683, adv: 4459 }
+            }
+        },
+        2024: {
+            dates: { admin: "March 28, 2024", inst: "April 4, 2024" },
+            grades: {
+                1:  { hiring: 26771, job: 34540, adv: 1112 },
+                6:  { hiring: 33607, job: 43521, adv: 1415 },
+                12: { hiring: 46648, job: 59757, adv: 1818 },
+                18: { hiring: 65001, job: 82656, adv: 2232 },
+                23: { hiring: 84156, job: 106454, adv: 2743 },
+                27: { hiring: 103784, job: 127830, adv: 3254 },
+                31: { hiring: 127433, job: 155130, adv: 3776 },
+                37: { hiring: 173294, job: 206703, adv: 4593 }
+            }
+        },
+        2025: {
+            dates: { admin: "March 27, 2025", inst: "April 3, 2025" },
+            grades: {
+                1:  { hiring: 27574, job: 35576, adv: 1145 },
+                6:  { hiring: 34615, job: 44827, adv: 1457 },
+                12: { hiring: 48047, job: 61550, adv: 1873 },
+                18: { hiring: 66951, job: 85136, adv: 2299 },
+                23: { hiring: 86681, job: 109648, adv: 2825 },
+                27: { hiring: 106898, job: 131665, adv: 3352 },
+                31: { hiring: 131256, job: 159784, adv: 3889 },
+                37: { hiring: 178493, job: 212904, adv: 4731 }
+            }
+        }
+    };
 
-// Contract Increases (2026-2031 PEF Agreement Patterns)
-const contractIncreases = [
-    { date: '2026-04-01', percent: 0.045, label: '4.5% General Contract Increase' },
-    { date: '2027-04-01', percent: 0.040, label: '4.0% General Contract Increase' },
-    { date: '2028-04-01', percent: 0.035, label: '3.5% General Contract Increase' },
-    { date: '2029-04-01', percent: 0.030, label: '3.0% General Contract Increase' },
-    { date: '2030-04-01', percent: 0.030, label: '3.0% General Contract Increase' }
-];
-
-function formatMoney(amount) {
-    return '$' + Math.round(amount).toLocaleString('en-US');
-}
-
-function calculateSalary() {
-    const hireDateVal = document.getElementById('hireDate').value;
-    const grade = parseInt(document.getElementById('salaryGrade').value);
-    const locationPay = parseFloat(document.getElementById('locationPay').value);
-
-    if (!hireDateVal) return;
-
-    const hireDate = new Date(hireDateVal + 'T00:00:00');
-    const data = pefData[grade];
-
-    const hireMonth = hireDate.getMonth() + 1; // 1 - 12
-    const hireDay = hireDate.getDate();
-    
-    // INCLUSIVE BOUNDARY RULE:
-    // Oct 2 through Apr 1  --> APRIL Cycle (Default)
-    // Apr 2 through Oct 1  --> OCTOBER Cycle
-    let advanceMonth = 4; // Default April
-
-    const isAprilTwoOrLater = (hireMonth === 4 && hireDay >= 2) || (hireMonth > 4);
-    const isOctoberOneOrEarlier = (hireMonth < 10) || (hireMonth === 10 && hireDay <= 1);
-
-    if (isAprilTwoOrLater && isOctoberOneOrEarlier) {
-        advanceMonth = 10; // October
-    }
-
-    let currentStep = 1;
-    let currentBase = data.hiringRate;
-    let currentAdvanceAmt = data.advance;
-
-    document.getElementById('summaryTitle').innerText = `Salary Grade: SG-${grade}`;
-    document.getElementById('summaryDetails').innerHTML = `
-        <strong>2026 Base (Step 1):</strong> ${formatMoney(currentBase)} | 
-        <strong>Performance Advance:</strong> ${formatMoney(currentAdvanceAmt)} | 
-        <strong>Advance Cycle:</strong> ${advanceMonth === 4 ? 'April' : 'October'} Cycle
-    `;
-
-    const timeline = [];
-
-    // Push initial appointment
-    timeline.push({
-        dateStr: hireDateVal.substring(0, 7),
-        dateObj: new Date(hireDate),
-        description: 'Initial Appointment (Step 1 Base)',
-        step: 1,
-        base: currentBase
+    // Populate Salary Grade Dropdown
+    const gradeSelect = document.getElementById("salary-grade");
+    const sampleGrades = [1, 6, 12, 18, 23, 27, 31, 37];
+    sampleGrades.forEach(grade => {
+        let opt = document.createElement("option");
+        opt.value = grade;
+        opt.textContent = `Grade ${grade}`;
+        if (grade === 18) opt.selected = true;
+        gradeSelect.appendChild(opt);
     });
 
-    let startYear = hireDate.getFullYear() + 1;
-    for (let yr = startYear; yr <= 2030; yr++) {
-        // Apply General Contract Increase
-        contractIncreases.forEach(ci => {
-            const ciYear = parseInt(ci.date.substring(0, 4));
-            if (ciYear === yr) {
-                currentBase = currentBase * (1 + ci.percent);
-                currentAdvanceAmt = currentAdvanceAmt * (1 + ci.percent);
-                timeline.push({
-                    dateStr: ci.date.substring(0, 7),
-                    dateObj: new Date(ci.date + 'T00:00:00'),
-                    description: ci.label,
-                    step: currentStep,
-                    base: currentBase
-                });
+    function calculateSalary() {
+        const grade = document.getElementById("salary-grade").value;
+        const cycle = document.getElementById("pay-schedule").value;
+        const tableBody = document.querySelector("#results-table tbody");
+        
+        tableBody.innerHTML = "";
+
+        [2023, 2024, 2025].forEach(year => {
+            const sched = pefSchedules[year];
+            const data = sched.grades[grade];
+
+            if (data) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${sched.dates[cycle]}</td>
+                    <td>SG-${grade}</td>
+                    <td class="amount">$${data.hiring.toLocaleString()}</td>
+                    <td class="amount">$${data.adv.toLocaleString()}</td>
+                    <td class="amount">$${data.job.toLocaleString()}</td>
+                `;
+                tableBody.appendChild(row);
             }
         });
 
-        // Apply Step Advance
-        if (currentStep < 7) {
-            currentStep++;
-            const advDateStr = `${yr}-${String(advanceMonth).padStart(2, '0')}-01`;
-            const isJobRateStep = (currentStep === 7);
-            const stepBoost = isJobRateStep ? (data.jobRateAdvance * (currentBase / data.hiringRate)) : currentAdvanceAmt;
-            
-            currentBase += stepBoost;
-            timeline.push({
-                dateStr: advDateStr.substring(0, 7),
-                dateObj: new Date(advDateStr + 'T00:00:00'),
-                description: isJobRateStep ? 'Job Rate Advance (Step 7)' : `Performance Advance (Step ${currentStep})`,
-                step: currentStep,
-                base: currentBase
-            });
-        }
+        document.getElementById("results-card").style.display = "block";
     }
-
-    // Sort timeline chronologically
-    timeline.sort((a, b) => a.dateObj - b.dateObj);
-
-    // Render Table Rows
-    const tbody = document.getElementById('timelineBody');
-    tbody.innerHTML = '';
-
-    timeline.forEach(row => {
-        const tr = document.createElement('tr');
-        if (row.description.includes('Performance Advance')) {
-            tr.classList.add('advance-row');
-        }
-
-        const dateFormatted = row.dateObj.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
-        const totalPay = row.base + locationPay;
-
-        tr.innerHTML = `
-            <td>${dateFormatted}</td>
-            <td>${row.description}</td>
-            <td>Step ${row.step}</td>
-            <td>${formatMoney(row.base)}</td>
-            <td><strong>${formatMoney(totalPay)}</strong></td>
-        `;
-        tbody.appendChild(tr);
-    });
-
-    document.getElementById('results').classList.remove('hidden');
-}
-
-// Auto-run calculation on load
-window.onload = calculateSalary;
 </script>
+
 </body>
 </html>
