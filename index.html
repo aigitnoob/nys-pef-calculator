@@ -1,558 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYS PEF Salary Calculator & Progression Tool</title>
-    <style>
-        :root {
-            --primary: #003366;
-            --primary-light: #1a4d80;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text: #1e293b;
-            --border: #e2e8f0;
-            --header-border: #003366;
-            --table-header-bg: #f1f5f9;
-            --input-bg: #ffffff;
-            --badge-initial-bg: #e2e8f0;
-            --badge-initial-text: #334155;
-            --badge-step-bg: #fef3c7;
-            --badge-step-text: #92400e;
-            --badge-contract-bg: #dbeafe;
-            --badge-contract-text: #1e40af;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NYS PEF Salary Calculator & Progression Tool</title>
+  <style>
+    :root {
+      --primary: #003366;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --header-border: #003366;
+      --table-header-bg: #f1f5f9;
+      --input-bg: #ffffff;
+      --badge-initial-bg: #e2e8f0;
+      --badge-initial-text: #334155;
+      --badge-step-bg: #fef3c7;
+      --badge-step-text: #92400e;
+      --badge-contract-bg: #dbeafe;
+      --badge-contract-text: #1e40af;
+    }
 
-        [data-theme="dark"] {
-            --primary: #38bdf8;
-            --primary-light: #7dd3fc;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --border: #334155;
-            --header-border: #38bdf8;
-            --table-header-bg: #334155;
-            --input-bg: #0f172a;
-            --badge-initial-bg: #334155;
-            --badge-initial-text: #e2e8f0;
-            --badge-step-bg: #78350f;
-            --badge-step-text: #fef3c7;
-            --badge-contract-bg: #1e3a8a;
-            --badge-contract-text: #dbeafe;
-        }
+    [data-theme="dark"] {
+      --primary: #38bdf8;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --border: #334155;
+      --header-border: #38bdf8;
+      --table-header-bg: #334155;
+      --input-bg: #0f172a;
+      --badge-initial-bg: #334155;
+      --badge-initial-text: #e2e8f0;
+      --badge-step-bg: #78350f;
+      --badge-step-text: #fef3c7;
+      --badge-contract-bg: #1e3a8a;
+      --badge-contract-text: #dbeafe;
+    }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            line-height: 1.5;
-            transition: background-color 0.3s, color 0.3s;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 20px;
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
+    }
 
-        .container {
-            max-width: 950px;
-            margin: 0 auto;
-        }
+    .container {
+      max-width: 950px;
+      margin: 0 auto;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            border-bottom: 3px solid var(--header-border);
-            padding-bottom: 1rem;
-        }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 3px solid var(--header-border);
+      padding-bottom: 1rem;
+    }
 
-        .header-title-container {
-            text-align: left;
-        }
+    h1 {
+      color: var(--primary);
+      margin: 0 0 0.25rem 0;
+    }
 
-        h1 {
-            color: var(--primary);
-            margin: 0 0 0.25rem 0;
-        }
+    .subtitle {
+      color: var(--text);
+      opacity: 0.7;
+      font-size: 0.95rem;
+      margin: 0;
+    }
 
-        .subtitle {
-            color: var(--text);
-            opacity: 0.7;
-            font-size: 0.95rem;
-            margin: 0;
-        }
+    .theme-switch-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .theme-switch-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .theme-switch {
+      display: inline-block;
+      height: 24px;
+      position: relative;
+      width: 48px;
+    }
 
-        .theme-switch {
-            display: inline-block;
-            height: 24px;
-            position: relative;
-            width: 48px;
-        }
+    .theme-switch input { display: none; }
 
-        .theme-switch input {
-            display: none;
-        }
+    .slider {
+      background-color: #ccc;
+      bottom: 0;
+      cursor: pointer;
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: .4s;
+      border-radius: 24px;
+    }
 
-        .slider {
-            background-color: #ccc;
-            bottom: 0;
-            cursor: pointer;
-            left: 0;
-            position: absolute;
-            right: 0;
-            top: 0;
-            transition: .4s;
-            border-radius: 24px;
-        }
+    .slider:before {
+      background-color: #fff;
+      bottom: 3px;
+      content: "";
+      height: 18px;
+      left: 3px;
+      position: absolute;
+      transition: .4s;
+      width: 18px;
+      border-radius: 50%;
+    }
 
-        .slider:before {
-            background-color: #fff;
-            bottom: 3px;
-            content: "";
-            height: 18px;
-            left: 3px;
-            position: absolute;
-            transition: .4s;
-            width: 18px;
-            border-radius: 50%;
-        }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(24px); }
 
-        input:checked + .slider {
-            background-color: var(--primary);
-        }
+    .card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+    }
 
-        input:checked + .slider:before {
-            transform: translateX(24px);
-        }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
 
-        .mode-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-bottom: 1.5rem;
-            border: 1px solid var(--border);
-            transition: background-color 0.3s, border-color 0.3s;
-        }
+    label {
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
 
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-        }
+    select, input {
+      padding: 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 1rem;
+      background-color: var(--input-bg);
+      color: var(--text);
+    }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
+    button {
+      grid-column: 1 / -1;
+      background-color: #003366;
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin-bottom: 0.4rem;
-            color: var(--text);
-        }
+    [data-theme="dark"] button { background-color: #2563eb; }
 
-        select, input {
-            padding: 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 1rem;
-            background-color: var(--input-bg);
-            color: var(--text);
-            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
 
-        button {
-            grid-column: 1 / -1;
-            background-color: #003366;
-            color: white;
-            border: none;
-            padding: 0.75rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
+    th, td {
+      text-align: left;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-        [data-theme="dark"] button {
-            background-color: #2563eb;
-        }
+    th {
+      background-color: var(--table-header-bg);
+      color: var(--primary);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+    }
 
-        button:hover {
-            opacity: 0.9;
-        }
+    .amount {
+      text-align: right;
+      font-family: monospace;
+      font-size: 1rem;
+      font-weight: 600;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+    .event-type {
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
 
-        th, td {
-            text-align: left;
-            padding: 0.75rem;
-            border-bottom: 1px solid var(--border);
-        }
+    .event-initial { background-color: var(--badge-initial-bg); color: var(--badge-initial-text); }
+    .event-step { background-color: var(--badge-step-bg); color: var(--badge-step-text); }
+    .event-contract { background-color: var(--badge-contract-bg); color: var(--badge-contract-text); }
 
-        th {
-            background-color: var(--table-header-bg);
-            color: var(--primary);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-        }
-
-        .amount {
-            text-align: right;
-            font-family: monospace;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-
-        .event-type {
-            font-size: 0.8rem;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .event-initial { background-color: var(--badge-initial-bg); color: var(--badge-initial-text); }
-        .event-step { background-color: var(--badge-step-bg); color: var(--badge-step-text); }
-        .event-contract { background-color: var(--badge-contract-bg); color: var(--badge-contract-text); }
-
-        .note {
-            font-size: 0.8rem;
-            color: var(--text);
-            opacity: 0.7;
-            margin-top: 0.5rem;
-        }
-    </style>
+    .note {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 <body>
 
 <div class="container">
-    <header>
-        <div class="header-title-container">
-            <h1>NYS PEF Salary Calculator</h1>
-            <p class="subtitle">PS&T Unit • Historical & Multi-Year Progression Projection</p>
-        </div>
-        <div class="theme-switch-wrapper">
-            <span class="mode-label">☀️</span>
-            <label class="theme-switch" for="checkbox">
-                <input type="checkbox" id="checkbox" />
-                <div class="slider"></div>
-            </label>
-            <span class="mode-label">🌙</span>
-        </div>
-    </header>
-
-    <div class="card">
-        <form id="calc-form">
-            <div class="form-grid">
-                <div class="form-group">
-                    <label for="salary-grade">Salary Grade</label>
-                    <select id="salary-grade">
-                        <!-- Options populated dynamically for SG 1-38 -->
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="start-date">Appointment Date</label>
-                    <input type="date" id="start-date" value="2018-12-13">
-                </div>
-
-                <div class="form-group">
-                    <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
-                    <input type="number" id="custom-salary" placeholder="Leave blank for standard rate">
-                </div>
-
-                <button type="button" onclick="calculateSalary()">Calculate Full Progression</button>
-            </div>
-        </form>
+  <header>
+    <div>
+      <h1>NYS PEF Salary Calculator</h1>
+      <p class="subtitle">PS&T Unit • Multi-Year Progression Projection</p>
     </div>
-
-    <div class="card" id="results-card" style="display:none;">
-        <h2>Detailed Progression Timeline</h2>
-        <table id="results-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Event Description</th>
-                    <th>Step Status</th>
-                    <th style="text-align:right;">Base Salary</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Entries rendered dynamically -->
-            </tbody>
-        </table>
-        <p class="note">* Note: Steps advance annually until reaching Job Rate (Step 7), provided minimum required service (13 pay periods) is met. General contract increases update active schedules.</p>
+    <div class="theme-switch-wrapper">
+      <span>☀️</span>
+      <label class="theme-switch" for="checkbox">
+        <input type="checkbox" id="checkbox" />
+        <div class="slider"></div>
+      </label>
+      <span>🌙</span>
     </div>
+  </header>
+
+  <div class="card">
+    <form id="calc-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="salary-grade">Salary Grade</label>
+          <select id="salary-grade"></select>
+        </div>
+
+        <div class="form-group">
+          <label for="start-date">Appointment Date</label>
+          <input type="date" id="start-date" value="2026-01-02">
+        </div>
+
+        <div class="form-group">
+          <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
+          <input type="number" id="custom-salary" placeholder="Leave blank for standard rate">
+        </div>
+
+        <button type="button" onclick="calculateSalary()">Calculate Full Progression</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" id="results-card" style="display:none;">
+    <h2>Detailed Progression Timeline</h2>
+    <table id="results-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Event Description</th>
+          <th>Step Status</th>
+          <th style="text-align:right;">Base Salary</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="note">* Note: Steps advance annually provided the minimum service period (13 pay periods / 6 months) is met prior to the performance cycle date (April 1 or October 1).</p>
+  </div>
 </div>
 
 <script>
-    // Theme Switch
-    const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
-    const currentTheme = localStorage.getItem('theme');
+  // Theme Toggle
+  const toggleSwitch = document.querySelector('.theme-switch input[type="checkbox"]');
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    toggleSwitch.checked = true;
+  }
+  toggleSwitch.addEventListener('change', (e) => {
+    const theme = e.target.checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  });
 
-    if (currentTheme) {
-        document.documentElement.setAttribute('data-theme', currentTheme);
-        if (currentTheme === 'dark') toggleSwitch.checked = true;
+  // Dynamic Grade Select Setup (SG 1–38)
+  const gradeSelect = document.getElementById("salary-grade");
+  for (let g = 1; g <= 38; g++) {
+    let opt = document.createElement("option");
+    opt.value = g;
+    opt.textContent = `Grade ${g}`;
+    if (g === 25) opt.selected = true;
+    gradeSelect.appendChild(opt);
+  }
+
+  // Baseline Schedule (April 2024 Base Rates)
+  const pef2024Base = {
+    1: { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 },
+    2: { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
+    3: { hiring: 29147, job: 37692, adv: 1222, jobAdv: 1213 },
+    4: { hiring: 30454, job: 39450, adv: 1282, jobAdv: 1304 },
+    5: { hiring: 31898, job: 41328, adv: 1349, jobAdv: 1336 },
+    6: { hiring: 33607, job: 43521, adv: 1415, jobAdv: 1424 },
+    7: { hiring: 35494, job: 45864, adv: 1473, jobAdv: 1532 },
+    8: { hiring: 37448, job: 48294, adv: 1525, jobAdv: 1696 },
+    9: { hiring: 39534, job: 50884, adv: 1581, jobAdv: 1864 },
+    10: { hiring: 41776, job: 53708, adv: 1651, jobAdv: 2026 },
+    11: { hiring: 44169, job: 56743, adv: 1758, jobAdv: 2026 },
+    12: { hiring: 46648, job: 59757, adv: 1818, jobAdv: 2201 },
+    13: { hiring: 49363, job: 63169, adv: 1891, jobAdv: 2460 },
+    14: { hiring: 52198, job: 66634, adv: 2020, jobAdv: 2316 },
+    15: { hiring: 55152, job: 70317, adv: 2095, jobAdv: 2595 },
+    16: { hiring: 58247, job: 74135, adv: 2175, jobAdv: 2838 },
+    17: { hiring: 61516, job: 78307, adv: 2278, jobAdv: 3123 },
+    18: { hiring: 65001, job: 82656, adv: 2232, jobAdv: 4263 },
+    19: { hiring: 68523, job: 87032, adv: 2325, jobAdv: 4559 },
+    20: { hiring: 72032, job: 91381, adv: 2422, jobAdv: 4817 },
+    21: { hiring: 75850, job: 96173, adv: 2528, jobAdv: 5155 },
+    22: { hiring: 79928, job: 101197, adv: 2634, jobAdv: 5465 },
+    23: { hiring: 84156, job: 106454, adv: 2743, jobAdv: 5840 },
+    24: { hiring: 88639, job: 111897, adv: 2849, jobAdv: 6164 },
+    25: { hiring: 93530, job: 117875, adv: 2970, jobAdv: 6525 },
+    26: { hiring: 98456, job: 121360, adv: 3091, jobAdv: 4358 },
+    27: { hiring: 103784, job: 127830, adv: 3254, jobAdv: 4522 },
+    28: { hiring: 109250, job: 134178, adv: 3380, jobAdv: 4648 },
+    29: { hiring: 114976, job: 140815, adv: 3510, jobAdv: 4779 },
+    30: { hiring: 120984, job: 147726, adv: 3640, jobAdv: 4902 },
+    31: { hiring: 127433, job: 155130, adv: 3776, jobAdv: 5041 },
+    32: { hiring: 134208, job: 162796, adv: 3903, jobAdv: 5170 },
+    33: { hiring: 141509, job: 170993, adv: 4032, jobAdv: 5292 },
+    34: { hiring: 149047, job: 179511, adv: 4171, jobAdv: 5438 },
+    35: { hiring: 156773, job: 188178, adv: 4306, jobAdv: 5569 },
+    36: { hiring: 164652, job: 197093, adv: 4454, jobAdv: 5717 },
+    37: { hiring: 173294, job: 206703, adv: 4593, jobAdv: 5851 },
+    38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
+  };
+
+  // General Increase Schedule
+  const contractIncreases = [
+    { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
+    { date: "2026-04-01", pct: 0.030, name: "2026 General Increase (3.0%)" },
+    { date: "2027-04-01", pct: 0.030, name: "2027 General Increase (3.0%)" },
+    { date: "2028-04-01", pct: 0.030, name: "2028 General Increase (3.0%)" },
+    { date: "2029-04-01", pct: 0.030, name: "2029 General Increase (3.0%)" },
+    { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" },
+    { date: "2031-04-01", pct: 0.030, name: "2031 General Increase (3.0%)" },
+    { date: "2032-04-01", pct: 0.030, name: "2032 General Increase (3.0%)" },
+    { date: "2033-04-01", pct: 0.030, name: "2033 General Increase (3.0%)" }
+  ];
+
+  function parseLocalDate(dateStr) {
+    const parts = dateStr.split('-');
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+
+  function calculateSalary() {
+    const grade = parseInt(document.getElementById("salary-grade").value);
+    const startDateStr = document.getElementById("start-date").value;
+    const customSalaryInput = document.getElementById("custom-salary").value;
+    if (!startDateStr) return;
+
+    const apptDate = parseLocalDate(startDateStr);
+    let baseData = pef2024Base[grade];
+
+    let currentHiring = baseData.hiring;
+    let currentAdv = baseData.adv;
+    let currentJobAdv = baseData.jobAdv;
+    let currentJob = baseData.job;
+
+    // Bring 2024 base schedule up to appointment date rate
+    contractIncreases.forEach(inc => {
+      let incDate = parseLocalDate(inc.date);
+      if (incDate <= apptDate) {
+        currentHiring = Math.round(currentHiring * (1 + inc.pct));
+        currentAdv = Math.round(currentAdv * (1 + inc.pct));
+        currentJobAdv = Math.round(currentJobAdv * (1 + inc.pct));
+        currentJob = Math.round(currentJob * (1 + inc.pct));
+      }
+    });
+
+    let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentHiring;
+    let currentStep = 0;
+    let displayEvents = [];
+
+    displayEvents.push({
+      date: startDateStr,
+      desc: customSalaryInput ? "Initial Appointment (Custom Rate)" : "Initial Appointment (Hiring Rate)",
+      step: "Step 0",
+      salary: Math.round(currentSalary),
+      badgeClass: "event-initial"
+    });
+
+    // Determine First Performance Advance Date based on 13 Pay Period Rule (6 Months)
+    const apptMonth = apptDate.getMonth() + 1;
+    const apptDay = apptDate.getDate();
+    const apptYear = apptDate.getFullYear();
+
+    let cycleMonth = 4;
+    let firstStepYear = apptYear;
+
+    // Cycle rules:
+    // Appt Apr 2 to Oct 1 -> October Cycle (Starts current year Oct if >= 6 mos, else next year)
+    // Appt Oct 2 to Apr 1 -> April Cycle
+    if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
+      cycleMonth = 10;
+      let monthDiff = 10 - apptMonth;
+      firstStepYear = monthDiff >= 6 ? apptYear : apptYear + 1;
+    } else {
+      cycleMonth = 4;
+      if (apptMonth < 4 || (apptMonth === 4 && apptDay === 1)) {
+        let monthDiff = 4 - apptMonth;
+        firstStepYear = monthDiff >= 6 ? apptYear : apptYear + 1;
+      } else {
+        // Oct 2 to Dec 31 -> First April cycle is the following year
+        firstStepYear = apptYear + 1;
+      }
     }
 
-    function switchTheme(e) {
-        if (e.target.checked) {
-            document.documentElement.setAttribute('data-theme', 'dark');
-            localStorage.setItem('theme', 'dark');
+    // Map Raw Steps into Events
+    let rawEvents = [];
+
+    contractIncreases.forEach(inc => {
+      let incDate = parseLocalDate(inc.date);
+      if (incDate > apptDate) {
+        rawEvents.push({
+          date: inc.date,
+          type: "CONTRACT",
+          pct: inc.pct,
+          name: inc.name
+        });
+      }
+    });
+
+    for (let s = 1; s <= 7; s++) {
+      let stepYear = firstStepYear + (s - 1);
+      let monthStr = cycleMonth === 4 ? "04" : "10";
+      let stepDateStr = `${stepYear}-${monthStr}-01`;
+      let stepDate = parseLocalDate(stepDateStr);
+
+      if (stepDate > apptDate) {
+        rawEvents.push({
+          date: stepDateStr,
+          type: "STEP",
+          stepNum: s
+        });
+      }
+    }
+
+    // Group events occurring on the same date
+    let groupedEvents = {};
+    rawEvents.forEach(e => {
+      if (!groupedEvents[e.date]) groupedEvents[e.date] = [];
+      groupedEvents[e.date].push(e);
+    });
+
+    let sortedDates = Object.keys(groupedEvents).sort((a, b) => parseLocalDate(a) - parseLocalDate(b));
+
+    // Process Timeline Sequentially
+    sortedDates.forEach(dateStr => {
+      let group = groupedEvents[dateStr];
+      
+      // Process CONTRACT increases first on any date to update schedule rates
+      let contractEv = group.find(e => e.type === "CONTRACT");
+      if (contractEv) {
+        currentHiring = Math.round(currentHiring * (1 + contractEv.pct));
+        currentAdv = Math.round(currentAdv * (1 + contractEv.pct));
+        currentJobAdv = Math.round(currentJobAdv * (1 + contractEv.pct));
+        currentJob = Math.round(currentJob * (1 + contractEv.pct));
+
+        currentSalary = Math.round(currentSalary * (1 + contractEv.pct));
+
+        displayEvents.push({
+          date: dateStr,
+          desc: contractEv.name,
+          step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
+          salary: currentSalary,
+          badgeClass: "event-contract"
+        });
+      }
+
+      // Process STEP advances immediately following scale adjustments on the same date
+      let stepEv = group.find(e => e.type === "STEP");
+      if (stepEv && currentStep < 7) {
+        currentStep++;
+        if (currentStep === 7) {
+          currentSalary = customSalaryInput
+            ? Math.min(currentSalary + currentJobAdv, currentJob)
+            : currentJob;
         } else {
-            document.documentElement.setAttribute('data-theme', 'light');
-            localStorage.setItem('theme', 'light');
-        }    
-    }
-    toggleSwitch.addEventListener('change', switchTheme, false);
-
-    // Dynamic Grade Select Setup
-    const gradeSelect = document.getElementById("salary-grade");
-    for (let g = 1; g <= 38; g++) {
-        let opt = document.createElement("option");
-        opt.value = g;
-        opt.textContent = `Grade ${g}`;
-        if (g === 18) opt.selected = true;
-        gradeSelect.appendChild(opt);
-    }
-
-    // Historical Base Tables
-    const pefHistoricalBases = {
-        "1996": {
-            1: { hiring: 16070, job: 20774 }, 2: { hiring: 16680, job: 21607 }, 3: { hiring: 17508, job: 22656 },
-            4: { hiring: 18318, job: 23732 }, 5: { hiring: 19233, job: 24888 }, 6: { hiring: 20296, job: 26206 },
-            7: { hiring: 21464, job: 27651 }, 8: { hiring: 22701, job: 29173 }, 9: { hiring: 24010, job: 30782 },
-            10: { hiring: 25417, job: 32504 }, 11: { hiring: 26950, job: 34383 }, 12: { hiring: 28521, job: 36303 },
-            13: { hiring: 30229, job: 38382 }, 14: { hiring: 31993, job: 40540 }, 15: { hiring: 33858, job: 42801 },
-            16: { hiring: 35800, job: 45178 }, 17: { hiring: 37863, job: 47736 }, 18: { hiring: 40086, job: 50422 },
-            19: { hiring: 42328, job: 53165 }, 20: { hiring: 44572, job: 55920 }, 21: { hiring: 47030, job: 58889 },
-            22: { hiring: 49603, job: 62019 }, 23: { hiring: 52284, job: 65263 }, 24: { hiring: 55108, job: 68629 },
-            25: { hiring: 58169, job: 72280 }, 26: { hiring: 61308, job: 75938 }, 27: { hiring: 64726, job: 80076 },
-            28: { hiring: 68187, job: 84136 }, 29: { hiring: 71805, job: 88397 }, 30: { hiring: 75615, job: 92851 },
-            31: { hiring: 79715, job: 97631 }, 32: { hiring: 84004, job: 102569 }, 33: { hiring: 88629, job: 107816 },
-            34: { hiring: 93401, job: 113293 }, 35: { hiring: 98284, job: 118806 }, 36: { hiring: 103322, job: 124545 },
-            37: { hiring: 108829, job: 130713 }, 38: { hiring: 103353, job: 103353 }
-        },
-        "2024": {
-            1: { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 }, 2: { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
-            3: { hiring: 29147, job: 37692, adv: 1222, jobAdv: 1213 }, 4: { hiring: 30454, job: 39450, adv: 1282, jobAdv: 1304 },
-            5: { hiring: 31898, job: 41328, adv: 1349, jobAdv: 1336 }, 6: { hiring: 33607, job: 43521, adv: 1415, jobAdv: 1424 },
-            7: { hiring: 35494, job: 45864, adv: 1473, jobAdv: 1532 }, 8: { hiring: 37448, job: 48294, adv: 1525, jobAdv: 1696 },
-            9: { hiring: 39534, job: 50884, adv: 1581, jobAdv: 1864 }, 10: { hiring: 41776, job: 53708, adv: 1651, jobAdv: 2026 },
-            11: { hiring: 44169, job: 56743, adv: 1758, jobAdv: 2026 }, 12: { hiring: 46648, job: 59757, adv: 1818, jobAdv: 2201 },
-            13: { hiring: 49363, job: 63169, adv: 1891, jobAdv: 2460 }, 14: { hiring: 52198, job: 66634, adv: 2020, jobAdv: 2316 },
-            15: { hiring: 55152, job: 70317, adv: 2095, jobAdv: 2595 }, 16: { hiring: 58247, job: 74135, adv: 2175, jobAdv: 2838 },
-            17: { hiring: 61516, job: 78307, adv: 2278, jobAdv: 3123 }, 18: { hiring: 65001, job: 82656, adv: 2232, jobAdv: 4263 },
-            19: { hiring: 68523, job: 87032, adv: 2325, jobAdv: 4559 }, 20: { hiring: 72032, job: 91381, adv: 2422, jobAdv: 4817 },
-            21: { hiring: 75850, job: 96173, adv: 2528, jobAdv: 5155 }, 22: { hiring: 79928, job: 101197, adv: 2634, jobAdv: 5465 },
-            23: { hiring: 84156, job: 106454, adv: 2743, jobAdv: 5840 }, 24: { hiring: 88639, job: 111897, adv: 2849, jobAdv: 6164 },
-            25: { hiring: 93530, job: 117875, adv: 2970, jobAdv: 6525 }, 26: { hiring: 98456, job: 121360, adv: 3091, jobAdv: 4358 },
-            27: { hiring: 103784, job: 127830, adv: 3254, jobAdv: 4522 }, 28: { hiring: 109250, job: 134178, adv: 3380, jobAdv: 4648 },
-            29: { hiring: 114976, job: 140815, adv: 3510, jobAdv: 4779 }, 30: { hiring: 120984, job: 147726, adv: 3640, jobAdv: 4902 },
-            31: { hiring: 127433, job: 155130, adv: 3776, jobAdv: 5041 }, 32: { hiring: 134208, job: 162796, adv: 3903, jobAdv: 5170 },
-            33: { hiring: 141509, job: 170993, adv: 4032, jobAdv: 5292 }, 34: { hiring: 149047, job: 179511, adv: 4171, jobAdv: 5438 },
-            35: { hiring: 156773, job: 188178, adv: 4306, jobAdv: 5569 }, 36: { hiring: 164652, job: 197093, adv: 4454, jobAdv: 5717 },
-            37: { hiring: 173294, job: 206703, adv: 4593, jobAdv: 5851 }, 38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
-        }
-    };
-
-    // Contract Increases Timeline
-    const contractIncreases = [
-        { date: "2019-04-01", pct: 0.020, name: "2019 General Increase (2.0%)" },
-        { date: "2020-04-01", pct: 0.020, name: "2020 General Increase (2.0%)" },
-        { date: "2021-04-01", pct: 0.020, name: "2021 General Increase (2.0%)" },
-        { date: "2022-04-01", pct: 0.030, name: "2022 General Increase (3.0%)" },
-        { date: "2023-04-01", pct: 0.030, name: "2023 General Increase (3.0%)" },
-        { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
-        { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
-        { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
-        { date: "2027-04-01", pct: 0.040, name: "2027 General Increase (4.0%)" },
-        { date: "2028-04-01", pct: 0.035, name: "2028 General Increase (3.5%)" },
-        { date: "2029-04-01", pct: 0.030, name: "2029 General Increase (3.0%)" },
-        { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
-    ];
-
-    function parseLocalDate(dateStr) {
-        const parts = dateStr.split('-');
-        return new Date(parts[0], parts[1] - 1, parts[2]);
-    }
-
-    function calculateSalary() {
-        const grade = parseInt(document.getElementById("salary-grade").value);
-        const startDateStr = document.getElementById("start-date").value;
-        const customSalaryInput = document.getElementById("custom-salary").value;
-        if (!startDateStr) return;
-
-        const apptDate = parseLocalDate(startDateStr);
-        const apptYear = apptDate.getFullYear();
-
-        // Determine Base Schedule
-        let baseData = apptYear < 2024 ? pefHistoricalBases["1996"][grade] : pefHistoricalBases["2024"][grade];
-        if (!baseData.adv) {
-            let totalSpread = baseData.job - baseData.hiring;
-            baseData.adv = Math.round(totalSpread / 7);
-            baseData.jobAdv = baseData.adv;
+          currentSalary += currentAdv;
         }
 
-        let currentHiring = baseData.hiring;
-        let currentAdv = baseData.adv;
-        let currentJobAdv = baseData.jobAdv || baseData.adv;
-        let currentJob = baseData.job;
-
-        // Apply prior contract increases up to appointment date
-        contractIncreases.forEach(inc => {
-            let incDate = parseLocalDate(inc.date);
-            if (incDate < apptDate) {
-                currentHiring = Math.round(currentHiring * (1 + inc.pct));
-                currentAdv = Math.round(currentAdv * (1 + inc.pct));
-                currentJobAdv = Math.round(currentJobAdv * (1 + inc.pct));
-                currentJob = Math.round(currentJob * (1 + inc.pct));
-            }
+        displayEvents.push({
+          date: dateStr,
+          desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
+          step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
+          salary: Math.round(currentSalary),
+          badgeClass: "event-step"
         });
+      }
+    });
 
-        let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentHiring;
-        let currentStep = 0;
-        let events = [];
+    // Render Table
+    const tableBody = document.querySelector("#results-table tbody");
+    tableBody.innerHTML = "";
 
-        events.push({
-            date: startDateStr,
-            desc: customSalaryInput ? "Initial Appointment (Custom Rate)" : "Initial Appointment (Hiring Rate)",
-            step: "Step 0",
-            salary: Math.round(currentSalary),
-            badgeClass: "event-initial"
-        });
+    displayEvents.forEach(ev => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${ev.date}</td>
+        <td><span class="event-type ${ev.badgeClass}">${ev.desc}</span></td>
+        <td>${ev.step}</td>
+        <td class="amount">$${ev.salary.toLocaleString()}</td>
+      `;
+      tableBody.appendChild(row);
+    });
 
-        let timelineEvents = [];
-
-        // Add Future Contract Increases
-        contractIncreases.forEach(inc => {
-            let incDate = parseLocalDate(inc.date);
-            if (incDate >= apptDate) {
-                timelineEvents.push({
-                    date: inc.date,
-                    type: "CONTRACT",
-                    pct: inc.pct,
-                    name: inc.name
-                });
-            }
-        });
-
-        // Determine First Step Year with 13-Pay-Period Service Rule
-        const apptMonth = apptDate.getMonth() + 1;
-        const apptDay = apptDate.getDate();
-        let cycleMonth = 4;
-        let firstStepYear = apptYear;
-
-        if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
-            cycleMonth = 10;
-            firstStepYear = apptYear + 1;
-        } else if (apptMonth === 10 && apptDay >= 2) {
-            cycleMonth = 4;
-            firstStepYear = apptYear + 2; 
-        } else if (apptMonth < 4 || (apptMonth === 4 && apptDay === 1)) {
-            cycleMonth = 4;
-            firstStepYear = apptYear + 1;
-        } else {
-            cycleMonth = 4;
-            firstStepYear = apptYear + 1;
-        }
-
-        // Add 7 Performance Steps
-        for (let stepNum = 1; stepNum <= 7; stepNum++) {
-            let stepYear = firstStepYear + (stepNum - 1);
-            let monthStr = cycleMonth === 4 ? "04" : "10";
-            let stepDateStr = `${stepYear}-${monthStr}-01`;
-            let stepDate = parseLocalDate(stepDateStr);
-            
-            if (stepDate > apptDate) {
-                timelineEvents.push({
-                    date: stepDateStr,
-                    type: "STEP",
-                    targetStep: stepNum
-                });
-            }
-        }
-
-        // Sort Timeline
-        timelineEvents.sort((a, b) => {
-            let diff = parseLocalDate(a.date) - parseLocalDate(b.date);
-            if (diff === 0) return a.type === "CONTRACT" ? -1 : 1;
-            return diff;
-        });
-
-        // Process Timeline Events
-        timelineEvents.forEach(e => {
-            if (e.type === "CONTRACT") {
-                currentHiring = Math.round(currentHiring * (1 + e.pct));
-                currentAdv = Math.round(currentAdv * (1 + e.pct));
-                currentJobAdv = Math.round(currentJobAdv * (1 + e.pct));
-                currentJob = Math.round(currentJob * (1 + e.pct));
-                
-                currentSalary = Math.round(currentSalary * (1 + e.pct));
-
-                events.push({
-                    date: e.date,
-                    desc: e.name,
-                    step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
-                    salary: currentSalary,
-                    badgeClass: "event-contract"
-                });
-            } else if (e.type === "STEP") {
-                if (currentStep < 7) {
-                    currentStep++;
-                    if (currentStep === 7) {
-                        currentSalary = customSalaryInput 
-                            ? Math.min(currentSalary + currentJobAdv, currentJob)
-                            : currentJob;
-                    } else {
-                        currentSalary += currentAdv;
-                    }
-
-                    events.push({
-                        date: e.date,
-                        desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
-                        step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
-                        salary: Math.round(currentSalary),
-                        badgeClass: "event-step"
-                    });
-                }
-            }
-        });
-
-        // Render Table
-        const tableBody = document.querySelector("#results-table tbody");
-        tableBody.innerHTML = "";
-
-        events.forEach(ev => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${ev.date}</td>
-                <td><span class="event-type ${ev.badgeClass}">${ev.desc}</span></td>
-                <td>${ev.step}</td>
-                <td class="amount">$${ev.salary.toLocaleString()}</td>
-            `;
-            tableBody.appendChild(row);
-        });
-
-        document.getElementById("results-card").style.display = "block";
-    }
+    document.getElementById("results-card").style.display = "block";
+  }
 </script>
 
 </body>
