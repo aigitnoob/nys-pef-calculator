@@ -243,6 +243,16 @@
         </div>
 
         <div class="form-group">
+          <label for="location-pay">Location Pay Region</label>
+          <select id="location-pay">
+            <option value="0">None ($0)</option>
+            <option value="3087">NYC, Long Island, Rockland, Westchester ($3,087)</option>
+            <option value="1543">Mid-Hudson (Dutchess, Orange, Putnam) ($1,543)</option>
+            <option value="200">Monroe County ($200)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label for="custom-salary">Custom Starting Base Salary (Optional)</label>
           <input type="number" id="custom-salary" placeholder="Leave blank for standard rate">
         </div>
@@ -261,6 +271,8 @@
           <th>Event Description</th>
           <th>Step Status</th>
           <th style="text-align:right;">Base Salary</th>
+          <th style="text-align:right;">Location Pay</th>
+          <th style="text-align:right;">Total Salary</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -353,6 +365,7 @@
     const grade = parseInt(document.getElementById("salary-grade").value);
     const startDateStr = document.getElementById("start-date").value;
     const customSalaryInput = document.getElementById("custom-salary").value;
+    const locationPay = parseFloat(document.getElementById("location-pay").value) || 0;
     if (!startDateStr) return;
 
     const apptDate = parseLocalDate(startDateStr);
@@ -389,6 +402,8 @@
       desc: customSalaryInput ? "Initial Appointment (Custom Rate)" : "Initial Appointment (Hiring Rate)",
       step: "Step 0",
       salary: currentSalary,
+      locPay: locationPay,
+      totalSalary: currentSalary + locationPay,
       badgeClass: "event-initial"
     });
 
@@ -483,6 +498,8 @@
           desc: contractEv.name,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
+          locPay: locationPay,
+          totalSalary: currentSalary + locationPay,
           badgeClass: "event-contract"
         });
       }
@@ -514,6 +531,8 @@
           desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
+          locPay: locationPay,
+          totalSalary: currentSalary + locationPay,
           badgeClass: "event-step"
         });
       }
@@ -529,6 +548,8 @@
         <td><span class="event-type ${ev.badgeClass}">${ev.desc}</span></td>
         <td>${ev.step}</td>
         <td class="amount">$${ev.salary.toLocaleString()}</td>
+        <td class="amount">$${ev.locPay.toLocaleString()}</td>
+        <td class="amount">$${ev.totalSalary.toLocaleString()}</td>
       `;
       tableBody.appendChild(row);
     });
