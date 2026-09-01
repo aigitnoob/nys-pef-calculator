@@ -350,7 +350,7 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
-  // Generate 2023 PEF Base Schedule by un-compounding 2024 3.0% raise
+  // Un-compound 2024 3.0% raise to establish true 2023 baseline schedule
   const pef2023Base = {};
   for (let g in pef2024Base) {
     pef2023Base[g] = {
@@ -361,7 +361,7 @@
     };
   }
 
-  // Contract Increases
+  // Contract Increases starting March 2024
   const pefContractIncreases = [
     { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
@@ -592,7 +592,6 @@
     const apptDay = apptDate.getDate();
     const apptYear = apptDate.getFullYear();
 
-    // Determine cycle month (4 for April 1, 10 for October 1)
     let cycleMonth = 4;
     if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
       cycleMonth = 10;
@@ -600,7 +599,6 @@
       cycleMonth = 4;
     }
 
-    // Find first potential candidate cycle date strictly after apptDate
     let candYear = apptYear;
     let candMonthStr = cycleMonth < 10 ? '0' + cycleMonth : '' + cycleMonth;
     let candDate = parseLocalDate(`${candYear}-${candMonthStr}-01`);
@@ -610,7 +608,6 @@
       candDate = parseLocalDate(`${candYear}-${candMonthStr}-01`);
     }
 
-    // Strictly enforce 13 full pay periods (182 days) continuous service prior to cycle date
     let diffDays = Math.round((candDate - apptDate) / (1000 * 60 * 60 * 24));
     if (diffDays < 182) {
       candYear++;
@@ -642,8 +639,8 @@
 
     const apptDate = parseLocalDate(startDateStr);
     
-    // Select base schedule based on appointment date
-    let baseData = apptDate < parseLocalDate("2024-03-28") ? pef2023Base[grade] : pef2024Base[grade];
+    // Anchor baseline calculations consistently to 2023 schedule values
+    let baseData = pef2023Base[grade];
 
     let rawHiring = baseData.hiring;
     let rawAdv = baseData.adv;
@@ -651,7 +648,7 @@
     let rawJob = baseData.job;
     let rawCustomSalary = customSalaryInput ? parseFloat(customSalaryInput) : null;
 
-    // Apply contract increases that occurred prior to appointment date
+    // Apply general contract increases that occurred prior to appointment date
     pefContractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
@@ -682,7 +679,6 @@
       badgeClass: "event-initial"
     });
 
-    // Calculate initial step advancement timeline with 182-day rule enforced
     const stepInfo = getPefFirstStepInfo(apptDate);
     const firstStepYear = stepInfo.firstStepYear;
     const cycleMonth = stepInfo.cycleMonth;
