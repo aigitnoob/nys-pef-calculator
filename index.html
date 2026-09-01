@@ -247,7 +247,7 @@
 
         <div class="form-group">
           <label for="start-date">Appointment Date</label>
-          <input type="date" id="start-date" value="2026-03-26">
+          <input type="date" id="start-date" value="2023-10-14">
         </div>
 
         <div class="form-group">
@@ -256,12 +256,12 @@
         </div>
 
         <div class="form-group">
-          <label for="location-pay">Location Pay Region</label>
-          <select id="location-pay">
-            <option value="0">None ($0)</option>
-            <option value="3087">NYC, Long Island, Rockland, Westchester ($3,087)</option>
-            <option value="1543">Mid-Hudson (Dutchess, Orange, Putnam) ($1,543)</option>
-            <option value="200">Monroe County ($200)</option>
+          <label for="location-region">Location Pay Region</label>
+          <select id="location-region">
+            <option value="none">None ($0)</option>
+            <option value="downstate">NYC, Long Island, Rockland, Westchester (Downstate)</option>
+            <option value="midHudson">Mid-Hudson (Dutchess, Orange, Putnam)</option>
+            <option value="monroe">Monroe County ($200)</option>
           </select>
         </div>
 
@@ -291,7 +291,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    <p class="note" id="results-note">* Note: Longevity pay for M/C applies strictly to Grade 17 and below per Budget Bulletin D-1155.</p>
+    <p class="note" id="results-note">* Note: Steps advance annually provided the minimum 13-pay-period (182-day) service requirement is met prior to the rating cycle date. Longevity pay for M/C applies strictly to Grade 17 and below.</p>
   </div>
 </div>
 
@@ -308,7 +308,7 @@
     localStorage.setItem('theme', theme);
   });
 
-  // Data Set: PEF 2024 Base Schedule
+  // PEF 2024 Base Schedule Reference
   const pef2024Base = {
     1: { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 },
     2: { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
@@ -350,7 +350,20 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
+  // Generate 2023 PEF Base Schedule by un-compounding the 2024 3% raise
+  const pef2023Base = {};
+  for (let g in pef2024Base) {
+    pef2023Base[g] = {
+      hiring: pef2024Base[g].hiring / 1.03,
+      job: pef2024Base[g].job / 1.03,
+      adv: pef2024Base[g].adv / 1.03,
+      jobAdv: pef2024Base[g].jobAdv / 1.03
+    };
+  }
+
+  // Contract Increases starting from March 2024
   const pefContractIncreases = [
+    { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
     { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
     { date: "2027-04-01", pct: 0.040, name: "2027 General Increase (4.0%)" },
@@ -359,7 +372,7 @@
     { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
-  // Ingested Data Set: M/C Schedules (2020-2026)
+  // M/C Schedules (2020-2026)
   const mcSchedules = {
     "2020-04-01": {
       name: "2020 M/C Salary Schedule",
@@ -505,7 +518,7 @@
         let opt = document.createElement("option");
         opt.value = g;
         opt.textContent = `Grade ${g}`;
-        if (g === 25) opt.selected = true;
+        if (g === 18) opt.selected = true;
         gradeSelect.appendChild(opt);
       }
     } else {
@@ -530,6 +543,35 @@
     return new Date(parts[0], parts[1] - 1, parts[2]);
   }
 
+  function getLocationPay(region, dateStr, unit) {
+    if (region === "none") return 0;
+    if (region === "monroe") return 200;
+
+    const evDate = parseLocalDate(dateStr);
+
+    if (unit === "PEF") {
+      if (region === "downstate") {
+        if (evDate >= parseLocalDate("2030-04-01")) return 6650;
+        if (evDate >= parseLocalDate("2029-04-01")) return 6400;
+        if (evDate >= parseLocalDate("2028-04-01")) return 6150;
+        if (evDate >= parseLocalDate("2027-04-01")) return 5150;
+        if (evDate >= parseLocalDate("2026-04-01")) return 4150;
+        return 4000;
+      } else if (region === "midHudson") {
+        if (evDate >= parseLocalDate("2030-04-01")) return 2950;
+        if (evDate >= parseLocalDate("2029-04-01")) return 2800;
+        if (evDate >= parseLocalDate("2028-04-01")) return 2650;
+        if (evDate >= parseLocalDate("2027-04-01")) return 2400;
+        if (evDate >= parseLocalDate("2026-04-01")) return 2150;
+        return 2000;
+      }
+    } else {
+      if (region === "downstate") return 3087;
+      if (region === "midHudson") return 1543;
+    }
+    return 0;
+  }
+
   function getLongevityPay(totalYearsService, yearsAtJobRate) {
     if (totalYearsService >= 22) return 4500;
     if (totalYearsService >= 17 || yearsAtJobRate >= 10) return 3000;
@@ -542,7 +584,7 @@
       const gNum = parseInt(gradeStr.replace("M/C ", ""), 10);
       return !isNaN(gNum) && gNum <= 17;
     }
-    return false; // M1 through M7/M8
+    return false;
   }
 
   function calculateSalary() {
@@ -558,12 +600,12 @@
     const grade = parseInt(document.getElementById("salary-grade").value);
     const startDateStr = document.getElementById("start-date").value;
     const customSalaryInput = document.getElementById("custom-salary").value;
-    const locationPay = parseFloat(document.getElementById("location-pay").value) || 0;
+    const locationRegion = document.getElementById("location-region").value;
     const priorService = parseFloat(document.getElementById("prior-service").value) || 0;
     if (!startDateStr) return;
 
     const apptDate = parseLocalDate(startDateStr);
-    let baseData = pef2024Base[grade];
+    let baseData = pef2023Base[grade];
 
     let rawHiring = baseData.hiring;
     let rawAdv = baseData.adv;
@@ -571,6 +613,7 @@
     let rawJob = baseData.job;
     let rawCustomSalary = customSalaryInput ? parseFloat(customSalaryInput) : null;
 
+    // Apply contract raises that occurred prior to appointment date
     pefContractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
@@ -588,15 +631,16 @@
 
     let currentSalary = rawCustomSalary !== null ? Math.round(rawCustomSalary) : Math.round(rawHiring);
     let initialLongevity = getLongevityPay(priorService, 0);
+    let initialLocPay = getLocationPay(locationRegion, startDateStr, "PEF");
 
     displayEvents.push({
       date: startDateStr,
       desc: customSalaryInput ? "Initial Appointment (Custom Rate)" : "Initial Appointment (Hiring Rate)",
       step: "Step 0",
       salary: currentSalary,
-      locPay: locationPay,
+      locPay: initialLocPay,
       longPay: initialLongevity,
-      totalSalary: currentSalary + locationPay + initialLongevity,
+      totalSalary: currentSalary + initialLocPay + initialLongevity,
       badgeClass: "event-initial"
     });
 
@@ -604,22 +648,33 @@
     const apptDay = apptDate.getDate();
     const apptYear = apptDate.getFullYear();
 
+    // PEF Cycle: Oct 2 - Apr 1 evaluates April 1; Apr 2 - Oct 1 evaluates Oct 1
     let cycleMonth = 4;
-    let firstStepYear = apptYear;
-
     if ((apptMonth === 4 && apptDay >= 2) || (apptMonth > 4 && apptMonth < 10) || (apptMonth === 10 && apptDay === 1)) {
       cycleMonth = 10;
-      let monthDiff = 10 - apptMonth;
-      firstStepYear = monthDiff >= 6 ? apptYear : apptYear + 1;
     } else {
       cycleMonth = 4;
-      if (apptMonth < 4 || (apptMonth === 4 && apptDay === 1)) {
-        let monthDiff = 4 - apptMonth;
-        firstStepYear = monthDiff >= 6 ? apptYear : apptYear + 1;
-      } else {
-        firstStepYear = apptYear + 1;
-      }
     }
+
+    // Determine initial candidate evaluation date
+    let candidateYear = apptYear;
+    let candidateMonthStr = cycleMonth < 10 ? '0' + cycleMonth : cycleMonth;
+    let candidateDateStr = `${candidateYear}-${candidateMonthStr}-01`;
+    let candidateDate = parseLocalDate(candidateDateStr);
+
+    if (candidateDate <= apptDate) {
+      candidateYear++;
+      candidateDateStr = `${candidateYear}-${candidateMonthStr}-01`;
+      candidateDate = parseLocalDate(candidateDateStr);
+    }
+
+    // Check 13-pay-period (182-day minimum continuous service) requirement
+    let diffDays = (candidateDate - apptDate) / (1000 * 60 * 60 * 24);
+    if (diffDays < 182) {
+      candidateYear++;
+    }
+
+    let firstStepYear = candidateYear;
 
     let rawEvents = [];
     pefContractIncreases.forEach(inc => {
@@ -631,7 +686,7 @@
 
     for (let s = 1; s <= 7; s++) {
       let stepYear = firstStepYear + (s - 1);
-      let monthStr = cycleMonth === 4 ? "04" : "10";
+      let monthStr = cycleMonth < 10 ? '0' + cycleMonth : cycleMonth;
       let stepDateStr = `${stepYear}-${monthStr}-01`;
       let stepDate = parseLocalDate(stepDateStr);
       if (stepDate > apptDate) {
@@ -652,6 +707,7 @@
       let eventDate = parseLocalDate(dateStr);
       let elapsedYears = (eventDate - apptDate) / (1000 * 60 * 60 * 24 * 365.25);
       let totalServiceYears = priorService + elapsedYears;
+      let locPay = getLocationPay(locationRegion, dateStr, "PEF");
 
       let contractEv = group.find(e => e.type === "CONTRACT");
       if (contractEv) {
@@ -680,9 +736,9 @@
           desc: contractEv.name,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
-          locPay: locationPay,
+          locPay: locPay,
           longPay: longevityPay,
-          totalSalary: currentSalary + locationPay + longevityPay,
+          totalSalary: currentSalary + locPay + longevityPay,
           badgeClass: "event-contract"
         });
       }
@@ -713,9 +769,9 @@
           desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
           step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
           salary: currentSalary,
-          locPay: locationPay,
+          locPay: locPay,
           longPay: longevityPay,
-          totalSalary: currentSalary + locationPay + longevityPay,
+          totalSalary: currentSalary + locPay + longevityPay,
           badgeClass: "event-step"
         });
       }
@@ -728,7 +784,7 @@
     const grade = document.getElementById("salary-grade").value;
     const startDateStr = document.getElementById("start-date").value;
     const customSalaryInput = document.getElementById("custom-salary").value;
-    const locationPay = parseFloat(document.getElementById("location-pay").value) || 0;
+    const locationRegion = document.getElementById("location-region").value;
     const priorService = parseFloat(document.getElementById("prior-service").value) || 0;
     if (!startDateStr) return;
 
@@ -747,15 +803,16 @@
     let currentGradeData = mcSchedules[initialScheduleKey].grades[grade];
     let currentSalary = customSalaryInput ? parseFloat(customSalaryInput) : currentGradeData.hiring;
     let initialLongevity = isMcLongevityEligible(grade) ? getLongevityPay(priorService, 0) : 0;
+    let locPay = getLocationPay(locationRegion, startDateStr, "MC");
 
     displayEvents.push({
       date: startDateStr,
       desc: customSalaryInput ? "Initial M/C Appointment (Custom Rate)" : "Initial M/C Appointment (Hiring Rate)",
       step: grade,
       salary: Math.round(currentSalary),
-      locPay: locationPay,
+      locPay: locPay,
       longPay: initialLongevity,
-      totalSalary: Math.round(currentSalary) + locationPay + initialLongevity,
+      totalSalary: Math.round(currentSalary) + locPay + initialLongevity,
       badgeClass: "event-initial"
     });
 
@@ -783,15 +840,16 @@
         }
 
         let longevityPay = isMcLongevityEligible(grade) ? getLongevityPay(totalServiceYears, 0) : 0;
+        let eventLocPay = getLocationPay(locationRegion, dateStr, "MC");
 
         displayEvents.push({
           date: dateStr,
           desc: sched.name,
           step: grade,
           salary: Math.round(currentSalary),
-          locPay: locationPay,
+          locPay: eventLocPay,
           longPay: longevityPay,
-          totalSalary: Math.round(currentSalary) + locationPay + longevityPay,
+          totalSalary: Math.round(currentSalary) + eventLocPay + longevityPay,
           badgeClass: "event-contract"
         });
       }
