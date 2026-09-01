@@ -247,7 +247,7 @@
 
         <div class="form-group">
           <label for="start-date">Appointment Date</label>
-          <input type="date" id="start-date" value="2024-12-02">
+          <input type="date" id="start-date" value="2019-10-15">
         </div>
 
         <div class="form-group">
@@ -291,7 +291,7 @@
       </thead>
       <tbody></tbody>
     </table>
-    <p class="note" id="results-note">* Note: PEF Performance Advances strictly require 13 full pay periods (182 days) of continuous service prior to the cycle rating date. M/C Longevity applies strictly to Grade 17 and below.</p>
+    <p class="note" id="results-note">* Note: PEF Performance Advances strictly require 13 full pay periods (182 days) of continuous service prior to the cycle rating date. Same-day contract increases and advances are consolidated.</p>
   </div>
 </div>
 
@@ -308,7 +308,7 @@
     localStorage.setItem('theme', theme);
   });
 
-  // PEF Base Schedule 2024
+  // PEF 2024 Base Reference Data
   const pef2024Base = {
     1: { hiring: 26771, job: 34540, adv: 1112, jobAdv: 1097 },
     2: { hiring: 27786, job: 35942, adv: 1165, jobAdv: 1166 },
@@ -350,19 +350,12 @@
     38: { hiring: 161676, job: 161676, adv: 0, jobAdv: 0 }
   };
 
-  // Un-compound 2024 3.0% raise to establish true 2023 baseline schedule
-  const pef2023Base = {};
-  for (let g in pef2024Base) {
-    pef2023Base[g] = {
-      hiring: pef2024Base[g].hiring / 1.03,
-      job: pef2024Base[g].job / 1.03,
-      adv: pef2024Base[g].adv / 1.03,
-      jobAdv: pef2024Base[g].jobAdv / 1.03
-    };
-  }
-
-  // Contract Increases starting March 2024
+  // Historical PEF contract increases spanning 2019-2030
   const pefContractIncreases = [
+    { date: "2020-04-01", pct: 0.020, name: "2020 General Increase (2.0%)" },
+    { date: "2021-04-01", pct: 0.020, name: "2021 General Increase (2.0%)" },
+    { date: "2022-04-01", pct: 0.020, name: "2022 General Increase (2.0%)" },
+    { date: "2023-04-01", pct: 0.030, name: "2023 General Increase (3.0%)" },
     { date: "2024-03-28", pct: 0.030, name: "2024 General Increase (3.0%)" },
     { date: "2025-03-27", pct: 0.030, name: "2025 General Increase (3.0%)" },
     { date: "2026-04-01", pct: 0.045, name: "2026 General Increase (4.5%)" },
@@ -372,7 +365,19 @@
     { date: "2030-04-01", pct: 0.030, name: "2030 General Increase (3.0%)" }
   ];
 
-  // M/C Schedules (2020-2026)
+  // Derive un-compounded 2019 Base Schedule back from 2024 schedules
+  const pef2019Base = {};
+  const compoundingDivisor = 1.03 * 1.03 * 1.02 * 1.02 * 1.02; // 2024, 2023, 2022, 2021, 2020
+  for (let g in pef2024Base) {
+    pef2019Base[g] = {
+      hiring: pef2024Base[g].hiring / compoundingDivisor,
+      job: pef2024Base[g].job / compoundingDivisor,
+      adv: pef2024Base[g].adv / compoundingDivisor,
+      jobAdv: pef2024Base[g].jobAdv / compoundingDivisor
+    };
+  }
+
+  // M/C Schedules
   const mcSchedules = {
     "2020-04-01": {
       name: "2020 M/C Salary Schedule",
@@ -518,7 +523,7 @@
         let opt = document.createElement("option");
         opt.value = g;
         opt.textContent = `Grade ${g}`;
-        if (g === 29) opt.selected = true;
+        if (g === 18) opt.selected = true;
         gradeSelect.appendChild(opt);
       }
     } else {
@@ -638,9 +643,7 @@
     if (!startDateStr) return;
 
     const apptDate = parseLocalDate(startDateStr);
-    
-    // Anchor baseline calculations consistently to 2023 schedule values
-    let baseData = pef2023Base[grade];
+    let baseData = pef2019Base[grade];
 
     let rawHiring = baseData.hiring;
     let rawAdv = baseData.adv;
@@ -648,7 +651,7 @@
     let rawJob = baseData.job;
     let rawCustomSalary = customSalaryInput ? parseFloat(customSalaryInput) : null;
 
-    // Apply general contract increases that occurred prior to appointment date
+    // Apply contract raises prior to apptDate
     pefContractIncreases.forEach(inc => {
       let incDate = parseLocalDate(inc.date);
       if (incDate < apptDate) {
@@ -717,6 +720,11 @@
       let locPay = getLocationPay(locationRegion, dateStr, "PEF");
 
       let contractEv = group.find(e => e.type === "CONTRACT");
+      let stepEv = group.find(e => e.type === "STEP");
+
+      let descParts = [];
+      let badgeClass = "event-contract";
+
       if (contractEv) {
         rawHiring *= (1 + contractEv.pct);
         rawAdv *= (1 + contractEv.pct);
@@ -734,23 +742,9 @@
           else if (currentStep === 7) currentSalary = curJob;
           else currentSalary = curHiring + (currentStep * curAdv);
         }
-
-        let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
-        let longevityPay = getLongevityPay(totalServiceYears, yearsAtJobRate);
-
-        displayEvents.push({
-          date: dateStr,
-          desc: contractEv.name,
-          step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
-          salary: currentSalary,
-          locPay: locPay,
-          longPay: longevityPay,
-          totalSalary: currentSalary + locPay + longevityPay,
-          badgeClass: "event-contract"
-        });
+        descParts.push(contractEv.name);
       }
 
-      let stepEv = group.find(e => e.type === "STEP");
       if (stepEv && currentStep < 7) {
         currentStep++;
         if (currentStep === 7 && !jobRateDate) jobRateDate = parseLocalDate(dateStr);
@@ -768,20 +762,23 @@
           else currentSalary = curHiring + (currentStep * curAdv);
         }
 
-        let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
-        let longevityPay = getLongevityPay(totalServiceYears, yearsAtJobRate);
-
-        displayEvents.push({
-          date: dateStr,
-          desc: currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`,
-          step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
-          salary: currentSalary,
-          locPay: locPay,
-          longPay: longevityPay,
-          totalSalary: currentSalary + locPay + longevityPay,
-          badgeClass: "event-step"
-        });
+        descParts.push(currentStep === 7 ? "Performance Advance to Job Rate" : `Performance Advance (Step ${currentStep})`);
+        badgeClass = "event-step";
       }
+
+      let yearsAtJobRate = jobRateDate ? (eventDate - jobRateDate) / (1000 * 60 * 60 * 24 * 365.25) : 0;
+      let longevityPay = getLongevityPay(totalServiceYears, yearsAtJobRate);
+
+      displayEvents.push({
+        date: dateStr,
+        desc: descParts.join(" & "),
+        step: currentStep === 7 ? "Job Rate" : `Step ${currentStep}`,
+        salary: currentSalary,
+        locPay: locPay,
+        longPay: longevityPay,
+        totalSalary: currentSalary + locPay + longevityPay,
+        badgeClass: badgeClass
+      });
     });
 
     renderTable(displayEvents);
